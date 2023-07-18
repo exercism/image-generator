@@ -1,6 +1,6 @@
 {
    "dark":{
-      "paddingVertical":"22px",
+      "paddingVertical":"100px",
       "paddingHorizontal":"30px",
       "backgroundImage":null,
       "backgroundImageSelection":null,
@@ -16,7 +16,7 @@
       "fontSize":"15px",
       "lineHeight":"133%",
       "windowControls":true,
-      "widthAdjustment":true,
+      "widthAdjustment":false,
       "lineNumbers":false,
       "firstLineNumber":1,
       "exportSize":"2x",
@@ -24,6 +24,6 @@
       "squaredImage":false,
       "hiddenCharacters":false,
       "name":"",
-      "width":"800"
+      "width":"600"
    }
 }

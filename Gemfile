@@ -8,7 +8,15 @@ end
 gem 'json'
 gem 'mandate'
 gem 'rake'
+gem 'rest-client'
 gem 'zeitwerk'
+gem 'exercism-config'
+gem "image_processing", "~> 1.0"
+
+
+group :development, :test do
+  gem 'sinatra'
+end
 
 group :test do
   gem 'minitest'

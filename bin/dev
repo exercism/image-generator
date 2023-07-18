@@ -1,0 +1,4 @@
+#!/bin/bash
+
+EXERCISM_ENV=development rackup -p 3024
+

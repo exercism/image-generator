@@ -5,24 +5,24 @@ module ImageGenerator
     initialize_with :event, :context
 
     def call
-      GenerateCarbon.(code)
+      image_binary_data = ImageGenerator::Solutions::Generate.(
+        track_slug, exercise_slug, user_handle
+      )
 
       {
         statusCode: 200,
         statusDescription: "200 OK",
-        headers: { 'Content-Type': 'text/plain' },
+        headers: { 'Content-Type': 'image/png' },
         isBase64Encoded: false,
-        body: "foobar"
+        body: image_binary_data
       }
     end
 
-    def code
-      body[:code]
-    end
+    def track_slug = body[:track_slug]
+    def exercise_slug = body[:exercise_slug]
+    def user_handle = body[:user_handle]
 
     memoize
-    def body
-      JSON.parse(event['body'], symbolize_names: true)
-    end
+    def body = JSON.parse(event['body'], symbolize_names: true)
   end
 end
