@@ -11,7 +11,7 @@ gem 'rake'
 gem 'zeitwerk'
 
 group :test do
-  gem 'minitest', '~> 5.10', '!= 5.10.2'
+  gem 'minitest'
   gem 'minitest-stub-const'
   gem 'mocha'
   gem 'simplecov', '~> 0.17.0'
