@@ -2,18 +2,20 @@ module ImageGenerator::Solutions
     class AppendTrackIcon
       include Mandate
 
-    initialize_with :original_image_path, :solution_data
+    initialize_with :carbon_image_path, :solution_data
 
     def call
       download_track_icon!
       download_exercise_icon!
       download_user_avatar!
 
+      carbon_image = Vips::Image.new_from_file(carbon_image_path)
+
       track_icon = ImageProcessing::Vips.
         source(track_icon_path).
         resize_to_fill(400, 400). # Set the size
         call(save: false) * # Create a Vips Image, not a file
-        [1, 1, 1, 0.03] # Convert to 10% tranparent
+        [1, 1, 1, 0.07] # Convert to 10% tranparent
 
       exercise_icon = ImageProcessing::Vips.
         source(exercise_icon_path).
@@ -25,11 +27,37 @@ module ImageGenerator::Solutions
         resize_to_fill(100, 100). # Set the size
         call(save: false) # Create a Vips Image, not a file
 
+      text = [
+        '<span foreground="white">',
+        'Check out ',
+        %q{<span underline="single">@erikschierboom's</span>},
+        ' solution to ',
+        '<span underline="single">Bob</span>',
+        ' in ',
+        '<span underline="single">Ruby</span>',
+        ' on ',
+        'Exercism!',
+        '</span>'
+      ].join("")
+      text_image = Vips::Image.text( text,
+                                    font: "Poppins 38",
+                                    spacing: 0,
+                                    width: 800, justify: false, rgba: true, align: :centre)
+
+      inset_x = 60
+      inset_y = 30
+      crop_offset = 120
       ImageProcessing::Vips.
-        source(original_image_path).
-        composite(track_icon, gravity: "south-east", offset: [60, 225]).
-        composite(exercise_icon, gravity: "south-east", offset: [30, 30]).
-        composite(user_avatar, gravity: "south-west", offset: [30, 30]).
+        source(carbon_image).
+        crop(0, crop_offset, carbon_image.width, carbon_image.height - crop_offset).
+        composite(track_icon, gravity: "south-east", offset: [60, 180]).
+        composite(exercise_icon, gravity: "south-east", offset: [inset_x, inset_y]).
+        composite(user_avatar, gravity: "south-west", offset: [inset_x, inset_y]).
+        composite(
+          text_image,
+          x: (carbon_image.width / 2.0) - (text_image.width / 2.0),
+          y: carbon_image.height - crop_offset - text_image.height - inset_y
+        ).
         call(destination: new_image_path)
 
       new_image_path
