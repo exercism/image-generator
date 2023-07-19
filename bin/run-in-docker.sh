@@ -5,30 +5,32 @@
 
 # Arguments:
 # $1: track slug
-# $2: the source code
-# $3: path to output directory (optional)
+# $2: exercise slug
+# $3: user handle
 
 # Output:
 # Create an image for an iteration's code.
-# If the output directory is specified, also write the response to that directory.
 
 # Example:
-# ./bin/run-in-docker.sh csharp "Console.WriteLine(42);"
+# ./bin/run-in-docker.sh csharp bob foo 
 
 # If any required arguments is missing, print the usage and exit
-if [[ $# -lt 2 ]]; then
-    echo "usage: ./bin/run-in-docker.sh track-slug <source-code> [path/to/output/directory/]"
+if [[ $# -lt 3 ]]; then
+    echo "usage: ./bin/run-in-docker.sh track-slug exercise-slug user-handle"
     exit 1
 fi
 
+export EXERCISM_ENV=development
+
 track_slug="${1}"
-source_code="${2}"
+exercise_slug="${2}"
+user_handle="${3}"
 container_port=9876
 image_tag="exercism/solution-image-generator"
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then
-    docker build --rm -t "${image_tag}" .
+    docker build --build-arg EXERCISM_ENV=development --rm -t "${image_tag}" .
 fi
 
 # Run the Docker image using the settings mimicking the production environment
@@ -37,21 +39,16 @@ container_id=$(docker run \
     --publish ${container_port}:8080 \
     "${image_tag}")
 
-echo "${track_slug}: creating image..."
+echo "${track_slug}/${exercise_slug}/${user_handle}: creating image..."
 
 #  the function with the correct JSON event payload
-body_json=$(jq -n --arg l "${track_slug}" --arg s "${source_code}" '{language: $l, source_code: $s}')
+body_json=$(jq -n --arg t "${track_slug}" --arg e "${exercise_slug}" --arg u "${user_handle}" '{track_slug: $t, exercise_slug: $e, user_handle: $u}')
 event_json=$(jq -n --arg b "${body_json}" '{body: $b}')
 function_url="http://localhost:${container_port}/2015-03-31/functions/function/invocations"
 
-if [ -z "${3}" ]; then
-    curl -XPOST "${function_url}" --data "${event_json}"
-    echo ""
-else
-    output_dir=$(realpath "${3%/}")
-    curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/snippet.txt"    
-fi
+curl -XPOST "${function_url}" --data "${event_json}"
 
-echo "${track_slug}: done"
+docker logs "${container_id}"
+echo "${track_slug}/${exercise_slug}/${user_handle}: done"
 
 docker stop "${container_id}" > /dev/null
