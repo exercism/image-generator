@@ -13,8 +13,7 @@ module ImageGenerator
           solution_data[:snippet],
           solution_data[:extension]
         )
-        p image_path
-        image_path = AppendTrackIcon.(image_path, solution_data)
+        image_path = AddAnnotations.(image_path, solution_data)
 
         # TODO: Create and merge an extra image for the titles etc
 

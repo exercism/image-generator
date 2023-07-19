@@ -1,5 +1,5 @@
 module ImageGenerator::Solutions
-    class AppendTrackIcon
+    class AddAnnotations
       include Mandate
 
     initialize_with :carbon_image_path, :solution_data
