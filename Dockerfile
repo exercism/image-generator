@@ -1,6 +1,6 @@
-FROM amazon/aws-lambda-ruby
+FROM public.ecr.aws/lambda/ruby:3.2
 
-RUN yum install -y make gcc
+RUN yum install -y make gcc gcc-c++
 
 WORKDIR /var/task
 

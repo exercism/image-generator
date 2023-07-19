@@ -1,42 +1,43 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Run the snippet extractor using the Docker image.
+# Run the solution image generator using the Docker image.
 
 # Arguments:
 # $1: track slug
-# $2: path to source code
+# $2: the source code
 # $3: path to output directory (optional)
 
 # Output:
-# Extract the snippet from an iteration's code.
+# Create an image for an iteration's code.
 # If the output directory is specified, also write the response to that directory.
 
 # Example:
-# ./bin/run-in-docker.sh csharp tests/csharp/simple.cs
+# ./bin/run-in-docker.sh csharp "Console.WriteLine(42);"
 
 # If any required arguments is missing, print the usage and exit
 if [[ $# -lt 2 ]]; then
-    echo "usage: ./bin/run-in-docker.sh track-slug <path/to/source/code/> [path/to/output/directory/]"
+    echo "usage: ./bin/run-in-docker.sh track-slug <source-code> [path/to/output/directory/]"
     exit 1
 fi
 
 track_slug="${1}"
-source_code=$(cat "${2}")
+source_code="${2}"
 container_port=9876
+image_tag="exercism/solution-image-generator"
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then
-    docker build --rm -t exercism/snippet-extractor .
+    docker build --rm -t "${image_tag}" .
 fi
 
 # Run the Docker image using the settings mimicking the production environment
 container_id=$(docker run \
     --detach \
     --publish ${container_port}:8080 \
-    exercism/snippet-extractor)
+    "${image_tag}")
 
-echo "${track_slug}: extracting snippet..."
+echo "${track_slug}: creating image..."
 
 #  the function with the correct JSON event payload
 body_json=$(jq -n --arg l "${track_slug}" --arg s "${source_code}" '{language: $l, source_code: $s}')
@@ -53,4 +54,4 @@ fi
 
 echo "${track_slug}: done"
 
-docker stop $container_id > /dev/null
+docker stop "${container_id}" > /dev/null
