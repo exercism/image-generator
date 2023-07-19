@@ -45,12 +45,12 @@ module ImageGenerator::Solutions
                                     width: 800, justify: false, rgba: true, align: :centre)
 
       inset_x = 60
-      inset_y = 30
-      crop_offset = 120
+      inset_y = 40
+      crop_offset = 140
       ImageProcessing::Vips.
         source(carbon_image).
         crop(0, crop_offset, carbon_image.width, carbon_image.height - crop_offset).
-        composite(track_icon, gravity: "south-east", offset: [60, 180]).
+        composite(track_icon, gravity: "south-east", offset: [60, 220]).
         composite(exercise_icon, gravity: "south-east", offset: [inset_x, inset_y]).
         composite(user_avatar, gravity: "south-west", offset: [inset_x, inset_y]).
         composite(
