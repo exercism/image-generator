@@ -7,9 +7,10 @@ require 'sinatra/json'
 module ImageGenerator
   class DevServer < Sinatra::Base
     # Ping check for ELBs
-    get '/solutions/:track_slug/:exercise_slug/:user_handle' do
+    get '/generate_image' do
       event = {
         'body' => {
+          type: params[:type],
           track_slug: params[:track_slug],
           exercise_slug: params[:exercise_slug],
           user_handle: params[:user_handle]
