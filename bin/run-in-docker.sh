@@ -60,7 +60,9 @@ function_url="http://localhost:${container_port}/2015-03-31/functions/function/i
 
 curl -XPOST "${function_url}" --data "${event_json}"
 
-docker logs "${container_id}"
 echo "${track_slug}/${exercise_slug}/${user_handle}: done"
 
 docker stop "${container_id}" > /dev/null
+
+# Enable this to see what happened inside the container
+# docker logs "${container_id}"

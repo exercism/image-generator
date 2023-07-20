@@ -33,16 +33,53 @@ RUN bundle config set deployment 'true' && \
     bundle config set without 'development test' && \
     bundle install
 
-RUN apt install -y libvips
+RUN apt remove libvips42
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:lovell/cgif
+RUN apt-get update
+RUN apt-get install -y libcgif-dev
+
+RUN apt install -y \
+    build-essential \
+    ninja-build \
+    python3-pip \
+    bc \
+    wget
+RUN pip3 install meson
+
+RUN apt install -y \
+    libfftw3-dev \
+    libopenexr-dev \
+    libgsf-1-dev \
+    libglib2.0-dev \
+    liborc-dev \
+    libopenslide-dev \
+    libmatio-dev \
+    libwebp-dev \
+    libjpeg-turbo8-dev \
+    libexpat1-dev \
+    libexif-dev \
+    libtiff5-dev \
+    libcfitsio-dev \
+    libpoppler-glib-dev \
+    librsvg2-dev \
+    libpango1.0-dev \
+    libopenjp2-7-dev \
+    libimagequant-dev
+
+RUN wget https://github.com/libvips/libvips/releases/download/v8.13.3/vips-8.13.3.tar.gz && \
+    tar xf vips-8.13.3.tar.gz && \
+    cd vips-8.13.3 && \
+    meson build --libdir=lib --buildtype=release -Dintrospection=false && \
+    cd build && \
+    meson compile && \
+    meson test && \
+    sudo meson install
 
 COPY . .
 
 ARG EXERCISM_ENV production
 ENV EXERCISM_ENV $EXERCISM_ENV
-
-
-
-RUN echo 'local.exercism.io host.docker.internal' > /etc/host.aliases
 
 ENTRYPOINT ["aws_lambda_ric"]
 

@@ -13,8 +13,8 @@ module ImageGenerator
         statusCode: 200,
         statusDescription: "200 OK",
         headers: { 'Content-Type': 'image/png' },
-        isBase64Encoded: false,
-        body: image_binary_data
+        isBase64Encoded: true,
+        body: Base64.encode64(image_binary_data)
       }
     end
 
