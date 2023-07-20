@@ -16,6 +16,7 @@ gem 'aws-sdk-lambda'
 gem "aws_lambda_ric"
 gem "stringio"
 gem "io-console"
+gem "nokogiri"
 
 group :development, :test do
   gem 'sinatra'
