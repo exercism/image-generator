@@ -1,5 +1,7 @@
 FROM ruby:3.2
 
+RUN apt update && apt install -y libvips42
+
 # Install the runtime interface client for Ruby
 RUN gem install aws_lambda_ric
 
@@ -19,4 +21,4 @@ COPY . .
 
 ENTRYPOINT [ "aws_lambda_ric" ]
 
-CMD [ "lib/lambda_function.LambdaFunction::Handler.process" ]
+CMD [ "lib/image_generator.ImageGenerator.process_request" ]

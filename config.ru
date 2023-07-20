@@ -1,8 +1,8 @@
-# $stdout.sync = true
-# $stderr.sync = true
+$stdout.sync = true
+$stderr.sync = true
 
-# $LOAD_PATH.unshift File.expand_path('lib', __dir__)
+$LOAD_PATH.unshift File.expand_path('lib', __dir__)
 
-# require_relative "lib/image_generator"
+require_relative "lib/image_generator"
 
-# run ImageGenerator::DevServer
+run ImageGenerator::DevServer
