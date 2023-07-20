@@ -41,13 +41,24 @@ if [[ -z "${SKIP_BUILD}" ]]; then
 fi
 
 # Run the Docker image using the settings mimicking the production environment
-container_id=$(docker run \
-    --detach \
-    --volume ${aws_lambda_rie_path}:/aws-lambda \
-    --env SPI_URL=http://host.docker.internal:3020 \
-    --publish ${container_port}:8080 \
-    "${image_tag}" \
-        aws_lambda_ric lib/image_generator.ImageGenerator.process_request)
+container_id=$(
+    # docker run \
+    #     --detach \
+    #     --volume /usr/local/bin/aws-lambda-rie:/aws-lambda/aws-lambda-rie \
+    #     --publish ${container_port}:8080 \
+    #     --entrypoint /aws-lambda/aws-lambda-rie \
+    #     "${image_tag}" \
+    #         aws_lambda_ric lib/image_generator.ImageGenerator.process_request
+    
+    docker run \
+        --detach \
+        --volume ${aws_lambda_rie_path}:/aws-lambda/aws-lambda-rie \
+        --publish ${container_port}:8080 \
+        --entrypoint /aws-lambda/aws-lambda-rie \
+        --env SPI_URL=http://host.docker.internal:3020 \
+        "${image_tag}" \
+            aws_lambda_ric lib/lambda_function.LambdaFunction::Handler.process
+    )
 
 echo "${track_slug}/${exercise_slug}/${user_handle}: creating image..."
 

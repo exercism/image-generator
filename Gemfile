@@ -5,13 +5,13 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'json'
-gem 'mandate'
-gem 'rake'
-gem 'rest-client'
-gem 'zeitwerk'
-gem 'exercism-config'
-gem "image_processing", "~> 1.0"
+# gem 'json'
+# gem 'mandate'
+# gem 'rake'
+# gem 'rest-client'
+# gem 'zeitwerk'
+# gem 'exercism-config'
+# gem "image_processing", "~> 1.0"
 gem 'aws-sdk-lambda'
 
 group :development, :test do

@@ -1,41 +1,28 @@
-FROM ubuntu:20.04
+FROM ruby:2.7
 
-RUN apt update && \
-    apt install --yes curl sudo gcc g++ make && \
-    apt autoremove
+# Install the runtime interface client for Ruby
+RUN gem install aws_lambda_ric
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
-    apt install --yes nodejs && \
-    apt autoremove
+# Add the runtime interface client to the PATH
+ENV PATH="/usr/local/bundle/bin:${PATH}"
 
-RUN npm install --global carbon-now-cli
+# Create a directory for the Lambda function
+ENV LAMBDA_TASK_ROOT=/var/task
+RUN mkdir -p ${LAMBDA_TASK_ROOT}
+WORKDIR ${LAMBDA_TASK_ROOT}
 
-WORKDIR /opt
-RUN curl -OL https://github.com/postmodern/ruby-install/releases/download/v0.9.1/ruby-install-0.9.1.tar.gz && \
-    tar -xzvf ruby-install-0.9.1.tar.gz && \
-    cd ruby-install-0.9.1/ && \
-    sudo make install
+# Copy function code
+COPY lib/lambda_function.rb ${LAMBDA_TASK_ROOT}/lib/
 
-ARG RUBY_VERSION=3.2.1
-RUN ruby-install "${RUBY_VERSION}"
-ENV PATH="/opt/rubies/ruby-${RUBY_VERSION}/bin:${PATH}"
+# Copy Gemfile and Gemfile.lock
+COPY Gemfile Gemfile.lock ${LAMBDA_TASK_ROOT}/
 
-RUN gem install json -v '2.3.1' && \
-    gem install aws_lambda_ric
+# Install Bundler and the specified gems
+RUN gem install bundler:1.17.3 && \
+    bundle install --path vendor/bundle
 
-WORKDIR /var/task
-
-ARG EXERCISM_ENV production
-ENV EXERCISM_ENV $EXERCISM_ENV
-
-COPY Gemfile Gemfile.lock ./
-
-RUN bundle config set deployment 'true' && \
-    bundle config set without 'development test' && \
-    bundle install
-
-COPY . .
-
+# Set runtime interface client as default command for the container runtime
 ENTRYPOINT [ "aws_lambda_ric" ]
 
-CMD [ "lib/image_generator.ImageGenerator:.process_request" ]
+# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+CMD [ "lib/lambda_function.LambdaFunction::Handler.process" ]
