@@ -6,6 +6,8 @@ RUN gem install aws_lambda_ric
 # Add the runtime interface client to the PATH
 ENV PATH="/usr/local/bundle/bin:${PATH}"
 
+ENV RAILS_ENV=production
+
 WORKDIR /var/task
 
 COPY Gemfile Gemfile.lock ./
