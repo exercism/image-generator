@@ -44,6 +44,7 @@ fi
 container_id=$(
     docker run \
         --detach \
+        --env SPI_URL=http://host.docker.internal:3020 \
         --volume /usr/local/bin/aws-lambda-rie:/aws-lambda/aws-lambda-rie \
         --volume $PWD/tmp:/var/task/tmp \
         --publish ${container_port}:8080 \
