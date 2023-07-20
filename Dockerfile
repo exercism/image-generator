@@ -1,4 +1,4 @@
-FROM ruby:2.7
+FROM ruby:3.2
 
 # Install the runtime interface client for Ruby
 RUN gem install aws_lambda_ric
@@ -18,7 +18,7 @@ COPY lib/lambda_function.rb ${LAMBDA_TASK_ROOT}/lib/
 COPY Gemfile Gemfile.lock ${LAMBDA_TASK_ROOT}/
 
 # Install Bundler and the specified gems
-RUN gem install bundler:1.17.3 && \
+RUN gem install bundler && \
     bundle install --path vendor/bundle
 
 # Set runtime interface client as default command for the container runtime
