@@ -1,0 +1,7 @@
+test/
+tmp/
+bin/
+*.md
+/LICENSE
+/package.json/
+/Dockerfile
