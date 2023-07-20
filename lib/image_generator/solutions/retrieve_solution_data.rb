@@ -16,9 +16,8 @@ module ImageGenerator
       end
 
       memoize
-      def url
-        "#{Exercism.config.spi_url}/spi/solution_image_data/#{track_slug}/#{exercise_slug}/#{user_handle}"
-      end
+      def url = "#{spi_url}/spi/solution_image_data/#{track_slug}/#{exercise_slug}/#{user_handle}"
+      def spi_url = ENV.fetch('SPI_URL', Exercism.config.spi_url)
     end
   end
 end

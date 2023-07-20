@@ -36,6 +36,7 @@ fi
 # Run the Docker image using the settings mimicking the production environment
 container_id=$(docker run \
     --detach \
+    --env SPI_URL=http://host.docker.internal:3020 \
     --publish ${container_port}:8080 \
     "${image_tag}")
 
