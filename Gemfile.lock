@@ -12,6 +12,9 @@ GEM
     aws-sdk-dynamodb (1.92.0)
       aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
+    aws-sdk-lambda (1.103.0)
+      aws-sdk-core (~> 3, >= 3.177.0)
+      aws-sigv4 (~> 1.1)
     aws-sdk-secretsmanager (1.81.0)
       aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
@@ -107,6 +110,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aws-sdk-lambda
   exercism-config
   image_processing (~> 1.0)
   json

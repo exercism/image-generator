@@ -12,7 +12,7 @@ gem 'rest-client'
 gem 'zeitwerk'
 gem 'exercism-config'
 gem "image_processing", "~> 1.0"
-
+gem 'aws-sdk-lambda'
 
 group :development, :test do
   gem 'sinatra'

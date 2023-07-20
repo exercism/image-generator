@@ -27,6 +27,13 @@ exercise_slug="${2}"
 user_handle="${3}"
 container_port=9876
 image_tag="exercism/solution-image-generator"
+aws_lambda_rie_path="/usr/local/bin/aws-lambda-rie"
+
+if ! command -v aws-lambda-rie &> /dev/null
+then
+    curl -Lo "${aws_lambda_rie_path}" https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie
+    chmod +x "${aws_lambda_rie_path}"
+fi
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then
@@ -36,9 +43,11 @@ fi
 # Run the Docker image using the settings mimicking the production environment
 container_id=$(docker run \
     --detach \
+    --volume ${aws_lambda_rie_path}:/aws-lambda \
     --env SPI_URL=http://host.docker.internal:3020 \
     --publish ${container_port}:8080 \
-    "${image_tag}")
+    "${image_tag}" \
+        aws_lambda_ric lib/image_generator.ImageGenerator.process_request)
 
 echo "${track_slug}/${exercise_slug}/${user_handle}: creating image..."
 
