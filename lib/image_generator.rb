@@ -33,8 +33,7 @@ end
 
 module ImageGenerator
   def self.process_request(event:, context:)
-    'HIHI'
-    # ProcessRequest.(event, context)
+    ProcessRequest.(event, context)
   end
 
   def self.tmp_dir

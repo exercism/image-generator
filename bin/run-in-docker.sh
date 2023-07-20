@@ -45,6 +45,7 @@ container_id=$(
     docker run \
         --detach \
         --volume /usr/local/bin/aws-lambda-rie:/aws-lambda/aws-lambda-rie \
+        --volume $PWD/tmp:/var/task/tmp \
         --env SPI_URL=http://host.docker.internal:3020 \
         --publish ${container_port}:8080 \
         --entrypoint /aws-lambda/aws-lambda-rie \
@@ -53,7 +54,7 @@ container_id=$(
 
 echo "${track_slug}/${exercise_slug}/${user_handle}: creating image..."
 
-#  the function with the correct JSON event payload
+# Call the function with the correct JSON event payload
 body_json=$(jq -n --arg t "${track_slug}" --arg e "${exercise_slug}" --arg u "${user_handle}" '{track_slug: $t, exercise_slug: $e, user_handle: $u}')
 event_json=$(jq -n --arg b "${body_json}" '{body: $b}')
 function_url="http://localhost:${container_port}/2015-03-31/functions/function/invocations"
