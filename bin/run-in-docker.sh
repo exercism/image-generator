@@ -37,7 +37,7 @@ fi
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then
-    docker build --build-arg EXERCISM_ENV=development --rm -t "${image_tag}" .
+    docker build --rm -t "${image_tag}" .
 fi
 
 # Run the Docker image using the settings mimicking the production environment
