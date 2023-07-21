@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 RUN apt update && \
     apt install --yes curl sudo gcc g++ make && \
@@ -8,11 +8,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
     apt install --yes nodejs && \
     apt autoremove
 
-RUN apt remove libvips42 && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:lovell/cgif && \
-    apt-get update && \
-    apt-get install -y libcgif-dev
+RUN apt remove libvips42
+RUN apt-get install -y software-properties-common
+# RUN add-apt-repository ppa:lovell/cgif
+# RUN apt-get install -y libcgif-dev
 
 RUN apt install -y \
     build-essential \
@@ -79,7 +78,7 @@ RUN bundle config set deployment 'true' && \
 COPY . .
 
 ARG EXERCISM_ENV production
-ENV EXERCISM_ENV $EXERCISM_ENV
+ENV EXERCISM_ENV=$EXERCISM_ENV
 
 ENTRYPOINT ["aws_lambda_ric"]
 
