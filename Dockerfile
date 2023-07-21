@@ -8,11 +8,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
     apt install --yes nodejs && \
     apt autoremove
 
-RUN apt remove libvips42
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:lovell/cgif
-RUN apt-get update
-RUN apt-get install -y libcgif-dev
+RUN apt remove libvips42 && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:lovell/cgif && \
+    apt-get update && \
+    apt-get install -y libcgif-dev
 
 RUN apt install -y \
     build-essential \
