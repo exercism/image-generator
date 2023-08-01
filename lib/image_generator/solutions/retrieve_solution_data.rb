@@ -6,8 +6,9 @@ module ImageGenerator
       initialize_with :track_slug, :exercise_slug, :user_handle
 
       def call
-        p "Retrieving"
+        p "Retrieving URL"
         p url
+        p "Retrieving Data"
         resp = RestClient.get(url)
         body = JSON.parse(resp.body, symbolize_names: true)
         p "Retrieved"
