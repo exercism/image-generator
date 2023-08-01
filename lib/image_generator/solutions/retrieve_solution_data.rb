@@ -6,8 +6,12 @@ module ImageGenerator
       initialize_with :track_slug, :exercise_slug, :user_handle
 
       def call
+        p "Retrieving"
+        p url
         resp = RestClient.get(url)
         body = JSON.parse(resp.body, symbolize_names: true)
+        p "Retrieved"
+        p body
         body[:solution]
 
         # TODO: Rescue a 404 or 500 and raise a custom exception
