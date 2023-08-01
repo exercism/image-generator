@@ -26,6 +26,8 @@ module ImageGenerator
     def path_parts
       regexp = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).png$/
       regexp.match(event["rawPath"])
+
+      # TODO: Raise if this doesn't match
     end
   end
 end

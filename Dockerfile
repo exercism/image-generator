@@ -77,8 +77,7 @@ RUN bundle config set deployment 'true' && \
 
 COPY . .
 
-ARG EXERCISM_ENV production
-ENV EXERCISM_ENV=$EXERCISM_ENV
+ENV EXERCISM_ENV=production
 
 ENTRYPOINT ["aws_lambda_ric"]
 

@@ -11,8 +11,7 @@ loader.setup
 
 module ImageGenerator
   def self.process_request(event:, context:)
-    p event
-    p context
+    p ENV
     event[:rawPath]
     ProcessRequest.(event, context)
   end
