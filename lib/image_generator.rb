@@ -13,6 +13,7 @@ module ImageGenerator
   def self.process_request(event:, context:)
     p event
     p context
+    event[:rawPath]
     ProcessRequest.(event, context)
   end
 

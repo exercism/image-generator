@@ -9,12 +9,7 @@ module ImageGenerator
     # Ping check for ELBs
     get '/generate_image' do
       event = {
-        'body' => {
-          type: params[:type],
-          track_slug: params[:track_slug],
-          exercise_slug: params[:exercise_slug],
-          user_handle: params[:user_handle]
-        }.to_json
+        'rawPath' => "/tracks/#{params[:track_slug]}/exercises/#{params[:exercise_slug]}/solutions/#{params[:user_handle]}.png"
       }
       resp = ProcessRequest.(event, nil)
 
@@ -22,7 +17,7 @@ module ImageGenerator
         response.headers[k.to_s] = v
       end
       status resp[:statusCode]
-      body resp[:body]
+      body Base64.decode64(resp[:body])
     end
   end
 end

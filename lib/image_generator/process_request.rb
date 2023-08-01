@@ -18,11 +18,14 @@ module ImageGenerator
       }
     end
 
-    def track_slug = body[:track_slug]
-    def exercise_slug = body[:exercise_slug]
-    def user_handle = body[:user_handle]
+    def track_slug = path_parts[:track_slug]
+    def exercise_slug = path_parts[:exercise_slug]
+    def user_handle = path_parts[:user_handle]
 
     memoize
-    def body = JSON.parse(event['body'], symbolize_names: true)
+    def path_parts
+      regexp = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).png$/
+      regexp.match(event["rawPath"])
+    end
   end
 end
