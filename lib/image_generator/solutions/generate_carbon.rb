@@ -8,7 +8,7 @@ module ImageGenerator::Solutions
     def call
       within_file_directory do
         root_filepath = File.expand_path("#{ImageGenerator.tmp_dir}/#{uuid}")
-        code_filepath = "#{root_filepath}.#{file_extension}"
+        code_filepath = "#{root_filepath}#{file_extension}"
         File.write(code_filepath, code)
         `carbon-now #{code_filepath} #{CARBON_OPTIONS % uuid}`
 
