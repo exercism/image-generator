@@ -2,6 +2,17 @@ FROM amazon/aws-lambda-ruby:2.7
 
 RUN yum install -y make gcc
 
+RUN yum install -y wget unzip libX11
+
+RUN GOOGLE_CHROME_VERSION=114.0.5735.198 && \
+    GOOGLE_CHROME_FILENAME=google-chrome-stable-${GOOGLE_CHROME_VERSION}-1.x86_64.rpm && \
+    wget https://dl.google.com/linux/chrome/rpm/stable/x86_64/${GOOGLE_CHROME_FILENAME} && \
+    yum install -y ${GOOGLE_CHROME_FILENAME}
+
+RUN CHROME_DRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
+    wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip && \
+    unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+
 WORKDIR /var/task
 
 # Pre-install these packages as they are slow to install

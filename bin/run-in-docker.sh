@@ -34,7 +34,7 @@ container_id=$(docker run \
     --publish ${container_port}:8080 \
     exercism/image-generator)
 
-echo "${image_url}: extracting snippet..."
+echo "generating image..."
 
 #  the function with the correct JSON event payload
 body_json=$(jq -n --arg url "${image_url}" '{url: $url}')
@@ -49,6 +49,6 @@ else
     curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/image.txt"
 fi
 
-echo "${image_url}: done"
+echo "done"
 
 docker stop $container_id > /dev/null
