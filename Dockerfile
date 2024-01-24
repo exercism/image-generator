@@ -1,8 +1,6 @@
 FROM amazon/aws-lambda-ruby:2.7
 
-RUN yum install -y make gcc
-
-RUN yum install -y wget unzip libX11
+RUN yum install -y make gcc wget unzip libX11
 
 RUN GOOGLE_CHROME_VERSION=114.0.5735.198 && \
     GOOGLE_CHROME_FILENAME=google-chrome-stable-${GOOGLE_CHROME_VERSION}-1.x86_64.rpm && \
