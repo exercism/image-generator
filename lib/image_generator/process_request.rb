@@ -12,7 +12,9 @@ class ProcessRequest
     Capybara.default_max_wait_time = 7
     
     Capybara.register_driver :selenium_chrome_headless do |app|
-      options = ::Selenium::WebDriver::Chrome::Options.new(args: %w[headless window-size=1400,1000])
+      options = ::Selenium::WebDriver::Chrome::Options.new(
+        args: %w[headless window-size=1400,1000]
+      )
   
       options.add_argument("headless=new")
   
@@ -28,7 +30,7 @@ class ProcessRequest
     image_file = Tempfile.new('image-generator')
 
     session = Capybara::Session.new(:selenium_chrome_headless)
-    session.visit('http://www.google.com')
+    session.visit('https://www.google.com/')
     session.save_screenshot(image_file.path )
 
     {

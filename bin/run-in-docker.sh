@@ -46,7 +46,8 @@ if [ -z "${2}" ]; then
 else
     output_dir=$(realpath "${2%/}")
     mkdir -p "${output_dir}"
-    curl -XPOST "${function_url}" --data "${event_json}" --silent | jq -r '.body' | base64 --decode > "${output_dir}/image.png"
+    curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/response.json"    
+    jq -r '.body' "${output_dir}/response.json" | base64 --decode > "${output_dir}/image.png"
 fi
 
 echo "done"
