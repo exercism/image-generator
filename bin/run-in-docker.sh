@@ -43,10 +43,10 @@ function_url="http://localhost:${container_port}/2015-03-31/functions/function/i
 
 if [ -z "${2}" ]; then
     curl -XPOST "${function_url}" --data "${event_json}"
-    echo ""
 else
     output_dir=$(realpath "${2%/}")
-    curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/image.txt"
+    mkdir -p "${output_dir}"
+    curl -XPOST "${function_url}" --data "${event_json}" --silent | jq -r '.body' | base64 --decode > "${output_dir}/image.png"
 fi
 
 echo "done"

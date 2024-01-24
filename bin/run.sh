@@ -22,15 +22,18 @@ fi
 
 image_url="${1}"
 
-if [ ! -z "${2}" ]; then
-    output_dir=$(realpath "${2%/}")
-fi
-
 echo "generating image..."
 
 # Call the function with the correct JSON event payload
 body_json=$(jq -n --arg url "${image_url}" '{url: $url}')
 event_json=$(jq -n --arg b "${body_json}" '{body: $b}')
-ruby "./bin/run.rb" "${event_json}"
+
+if [ -z "${2}" ]; then
+    ruby "./bin/run.rb" "${event_json}"
+else
+    output_dir=$(realpath "${2%/}")
+    mkdir -p "${output_dir}"
+    ruby "./bin/run.rb" "${event_json}" | jq -r '.body' | base64 --decode > "${output_dir}/image.png"
+fi
 
 echo "done"
