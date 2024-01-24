@@ -4,7 +4,10 @@ RUN yum install -y make gcc
 
 WORKDIR /var/task
 
-RUN gem install json -v '2.3.1' 
+# Pre-install these packages as they are slow to install
+# and this way we can leverage Docker layer caching
+RUN gem install json -v '2.3.1' && \
+    gem install nokogiri -v '1.13.10'
 
 COPY Gemfile Gemfile.lock ./
 
