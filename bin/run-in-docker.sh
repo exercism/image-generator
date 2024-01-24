@@ -1,69 +1,54 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Run the solution image generator using the Docker image.
+# Run the image generator using Docker.
 
 # Arguments:
-# $1: track slug
-# $2: exercise slug
-# $3: user handle
+# $1: image url
+# $2: path to output directory (optional)
 
 # Output:
-# Create an image for an iteration's code.
+# Capture an image from an URL.
+# If the output directory is specified, also write the image to that directory.
 
 # Example:
-# ./bin/run-in-docker.sh csharp bob foo 
+# ./bin/run-in-docker.sh https://exercism.org/images/solutions/ruby/two-fer/erikSchierboom
 
 # If any required arguments is missing, print the usage and exit
-if [[ $# -lt 3 ]]; then
-    echo "usage: ./bin/run-in-docker.sh track-slug exercise-slug user-handle"
+if [[ $# -lt 1 ]]; then
+    echo "usage: ./bin/run-in-docker.sh image-url [path/to/output/directory/]"
     exit 1
 fi
 
-export EXERCISM_ENV=development
-
-track_slug="${1}"
-exercise_slug="${2}"
-user_handle="${3}"
+image_url="${1}"
 container_port=9876
-image_tag="exercism/solution-image-generator"
-aws_lambda_rie_path="/usr/local/bin/aws-lambda-rie"
-
-if ! command -v aws-lambda-rie &> /dev/null
-then
-    curl -Lo "${aws_lambda_rie_path}" https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie
-    chmod +x "${aws_lambda_rie_path}"
-fi
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then
-    docker build --rm -t "${image_tag}" .
+    docker build --rm -t exercism/image-generator .
 fi
 
 # Run the Docker image using the settings mimicking the production environment
-container_id=$(
-    docker run \
-        --detach \
-        --env SPI_URL=http://host.docker.internal:3020 \
-        --volume /usr/local/bin/aws-lambda-rie:/aws-lambda/aws-lambda-rie \
-        --volume $PWD/tmp:/var/task/tmp \
-        --publish ${container_port}:8080 \
-        --entrypoint /aws-lambda/aws-lambda-rie \
-        "${image_tag}" \
-            aws_lambda_ric lib/image_generator.ImageGenerator.process_request)
+container_id=$(docker run \
+    --detach \
+    --publish ${container_port}:8080 \
+    exercism/image-generator)
 
-echo "${track_slug}/${exercise_slug}/${user_handle}: creating image..."
+echo "${image_url}: extracting snippet..."
 
-# Call the function with the correct JSON event payload
-body_json=$(jq -n --arg t "${track_slug}" --arg e "${exercise_slug}" --arg u "${user_handle}" '{track_slug: $t, exercise_slug: $e, user_handle: $u}')
+#  the function with the correct JSON event payload
+body_json=$(jq -n --arg url "${image_url}" '{url: $url}')
 event_json=$(jq -n --arg b "${body_json}" '{body: $b}')
 function_url="http://localhost:${container_port}/2015-03-31/functions/function/invocations"
 
-curl -XPOST "${function_url}" --data "${event_json}"
+if [ -z "${2}" ]; then
+    curl -XPOST "${function_url}" --data "${event_json}"
+    echo ""
+else
+    output_dir=$(realpath "${2%/}")
+    curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/image.txt"
+fi
 
-echo "${track_slug}/${exercise_slug}/${user_handle}: done"
+echo "${image_url}: done"
 
-docker stop "${container_id}" > /dev/null
-
-# Enable this to see what happened inside the container
-# docker logs "${container_id}"
+docker stop $container_id > /dev/null

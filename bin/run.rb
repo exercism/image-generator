@@ -1,6 +1,7 @@
-require "zeitwerk"
-load File.expand_path('../../lib/image_generator.rb', __FILE__)
+#!/usr/bin/env ruby
 
-def run(event:, context:)
-  ImageGenerator.process_request(event: event, context: context)
-end
+require("./lib/image_generator")
+
+event = JSON.parse(ARGV[0])
+response = ImageGenerator.process(event: event, context: {})
+puts response.to_json

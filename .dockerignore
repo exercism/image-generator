@@ -1,7 +1,3 @@
-test/
-tmp/
+.appends/
+.github/
 bin/
-*.md
-/LICENSE
-/package.json/
-/Dockerfile

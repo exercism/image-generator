@@ -1,0 +1,18 @@
+name: Backup
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: 0 0 * * * # Every day of each month    
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Backup
+    uses: exercism/github-actions/.github/workflows/backup-repo.yml@backup-repo
+    secrets: inherit

@@ -1,33 +1,48 @@
-module ImageGenerator
-  class ProcessRequest
-    include Mandate
+class ProcessRequest
+  include Mandate
 
-    initialize_with :event, :context
+  initialize_with :event, :content
 
-    def call
-      image_binary_data = ImageGenerator::Solutions::Generate.(
-        track_slug, exercise_slug, user_handle
-      )
+  def call
+    # write_output_to_file if output_filepath
+    response
+  end
 
-      {
-        statusCode: 200,
-        statusDescription: "200 OK",
-        headers: { 'Content-Type': 'image/png' },
-        isBase64Encoded: true,
-        body: Base64.encode64(image_binary_data)
-      }
-    end
+  private
+  memoize
+  def response
+    # counts = CountLinesOfCode.(submission).to_json
 
-    def track_slug = path_parts[:track_slug]
-    def exercise_slug = path_parts[:exercise_slug]
-    def user_handle = path_parts[:user_handle]
+    {
+      statusCode: 200,
+      statusDescription: "200 OK",
+      headers: { 'Content-Type': 'application/json' },
+      isBase64Encoded: false,
+      body: 'hello'
+    }
+  end
 
-    memoize
-    def path_parts
-      regexp = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).png$/
-      regexp.match(event["rawPath"])
+  def submission
+    puts event
+    puts body[:submission_uuid]
+    puts body[:submission_filepaths]
+    puts body[:track_slug]
+    puts content
+    Submission.new(body[:submission_uuid], body[:submission_filepaths], body[:track_slug])
+  end
 
-      # TODO: Raise if this doesn't match
-    end
+  def write_output_to_file
+    File.write(output_filepath, response.to_json)
+  end
+
+  def output_filepath
+    return if body[:output_dir].nil?
+
+    "#{body[:output_dir]}/response.json"
+  end
+
+  memoize
+  def body
+    JSON.parse(event["body"], symbolize_names: true)
   end
 end
