@@ -9,7 +9,8 @@ loader.setup
 
 module ImageGenerator
   def self.process(event:, context:)
-    ProcessRequest.(event, context)
+    # ProcessRequest.(event, context)
+    {}
   rescue => e
     { error: e }
   end
