@@ -8,23 +8,32 @@ class ProcessRequest
 
   def call
     setup_capybara
+    take_screenshot
+    response
+  end
 
-    image_file = Tempfile.new('image-generator')
-
-    session = Capybara::Session.new(DRIVER_NAME)
-    session.visit(url.to_s)
-    session.save_screenshot(image_file.path)
-
+  private
+  def response
     {
       statusCode: 200,
       statusDescription: "200 OK",
       headers: { 'Content-Type': 'application/json' },
       isBase64Encoded: true,
-      body: Base64.encode64(File.read(image_file.path))
+      body: Base64.encode64(screenshot)
     }
   end
 
-  private
+  def screenshot
+    File.read(screenshot_file)
+  end
+
+  def take_screenshot
+    session = Capybara::Session.new(DRIVER_NAME)
+    session.visit(url.to_s)
+    session.save_screenshot(screenshot_file)
+    session.quit
+  end
+
   def setup_capybara
     Capybara.run_server = false
     Capybara.default_max_wait_time = 7
@@ -46,6 +55,11 @@ class ProcessRequest
   memoize
   def body
     JSON.parse(event["body"], symbolize_names: true)
+  end
+
+  memoize
+  def screenshot_file
+    Tempfile.new('image-generator').path
   end
 
   DRIVER_NAME = :selenium_chrome_headless
