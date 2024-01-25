@@ -9,26 +9,7 @@ on:
 permissions: {}
 
 jobs:
-  tokei:
-    runs-on: ubuntu-22.04
-
-    outputs:
-      latest-sha: ${{ steps.fetch-latest-sha.outputs.latest-sha }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-
-      - name: Fetch latest commit SHA
-        id: fetch-latest-sha
-        run: |
-          source ./bin/fetch-latest-tokei-sha.sh
-          echo "latest-sha=${LATEST_TOKEI_SHA}" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ github.token }}
-
   build-and-push-image:
-    needs: [tokei]
     uses: exercism/github-actions/.github/workflows/docker-build-push-image.yml@main
     permissions:
       contents: write
@@ -41,7 +22,6 @@ jobs:
       AWS_ECR_SECRET_ACCESS_KEY: ${{secrets.AWS_LAMBDA_SECRET_ACCESS_KEY}}
       DOCKERHUB_USERNAME: ${{secrets.DOCKERHUB_USERNAME}}
       DOCKERHUB_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
-      DOCKER_BUILD_ARGS: TOKEI_SHA=${{needs.tokei.outputs.latest-sha}}
 
   deploy-lambda:
     uses: exercism/github-actions/.github/workflows/deploy-lambda.yml@main

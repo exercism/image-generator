@@ -2,3 +2,6 @@
 .github/
 bin/
 output/
+*.md
+/LICENSE
+/Dockerfile

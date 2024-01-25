@@ -31,8 +31,7 @@ class ProcessRequest
   def take_screenshot
     session = Capybara::Session.new(DRIVER_NAME)
     session.visit(url.to_s)
-    # TODO: parameterize selector
-    @bounds = session.evaluate_script('document.querySelector(".c-perk").getBoundingClientRect()')
+    @bounds = session.evaluate_script("document.querySelector('#{selector}').getBoundingClientRect()")
     session.save_screenshot(screenshot_file)
     session.quit
   end
@@ -58,6 +57,10 @@ class ProcessRequest
 
   def url
     Addressable::URI.parse(body[:url])
+  end
+
+  def selector
+    body[:selector]
   end
 
   memoize
