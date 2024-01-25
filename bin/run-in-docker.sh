@@ -26,7 +26,7 @@ fi
 
 image_url="${1}"
 selector="${2}"
-container_port=9876
+container_port=9879
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then

@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'zeitwerk'
 gem 'mandate'
 gem 'capybara'
 gem 'selenium-webdriver'
