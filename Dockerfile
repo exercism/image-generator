@@ -26,6 +26,7 @@ RUN gem install nokogiri -v '1.13.10'
 
 COPY Gemfile Gemfile.lock ./
 
+RUN gem install bundler -v 2.4.22
 RUN bundle config set deployment 'true' && \
     bundle config set without 'development test' && \
     bundle install

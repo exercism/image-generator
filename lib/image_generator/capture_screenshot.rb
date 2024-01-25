@@ -39,7 +39,6 @@ module ImageGenerator
       top = @bounds["top"].to_f * SCALE_FACTOR
 
       crop_arg = "#{width}x#{height}+#{left}+#{top}"
-      p screenshot_filepath
       `convert #{screenshot_filepath} -crop #{crop_arg} -quality 85 #{screenshot_filepath}`
     end
 

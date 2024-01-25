@@ -5,6 +5,7 @@ module ImageGenerator
     initialize_with :event, :content
 
     def call
+      pp event
       {
         statusCode: 200,
         statusDescription: "200 OK",
