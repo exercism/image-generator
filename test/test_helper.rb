@@ -11,5 +11,7 @@ require 'pathname'
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require "image_generator"
 
-class Minitest::Test
+module Minitest
+  class Test
+  end
 end

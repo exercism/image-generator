@@ -16,9 +16,9 @@ module ImageGenerator
 
     memoize
     def screenshot
-      if matchdata = SOLUTION_REGEXP.match(event["rawPath"])
-        CaptureSolutionScreenshot.(**extract_captures(matchdata))
-      end
+      return unless (matchdata = SOLUTION_REGEXP.match(event["rawPath"]))
+
+      CaptureSolutionScreenshot.(**extract_captures(matchdata))
 
       # TODO: Raise if this doesn't match
     end
@@ -27,6 +27,6 @@ module ImageGenerator
       matchdata.named_captures.transform_keys(&:to_sym)
     end
 
-    SOLUTION_REGEXP = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).jpg$/
+    SOLUTION_REGEXP = %r{^/tracks/(?<track_slug>[^\\]+)/exercises/(?<exercise_slug>[^\\]+)/solutions/(?<user_handle>[^\\]+).jpg$}
   end
 end

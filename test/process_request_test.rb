@@ -5,15 +5,15 @@ module ImageGenerator
   class ProcessRequestTest < Minitest::Test
     def test_e2e
       track_slug = 'ruby'
-      exercise_slug=  'bob'
-      user_handle =  'ihid'
+      exercise_slug = 'bob'
+      user_handle = 'ihid'
 
       event = JSON.parse({
         body: {
           type: :solution,
-          track_slug: track_slug,
-          exercise_slug: exercise_slug,
-          user_handle: user_handle
+          track_slug:,
+          exercise_slug:,
+          user_handle:
         }.to_json
       }.to_json)
 
@@ -23,7 +23,7 @@ module ImageGenerator
         solution: {}
       })
 
-      sample_path = Dir.chdir(File.expand_path(File.dirname(__FILE__))) do
+      sample_path = Dir.chdir(__dir__) do
         File.expand_path("../test/sample.png")
       end
       ImageGenerator::Solutions::AddAnnotations.expects(:call).

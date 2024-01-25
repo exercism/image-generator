@@ -13,7 +13,7 @@ module ImageGenerator
       }
       resp = ProcessRequest.(event, nil)
 
-      resp[:headers].each do |k,v|
+      resp[:headers].each do |k, v|
         response.headers[k.to_s] = v
       end
       status resp[:statusCode]
