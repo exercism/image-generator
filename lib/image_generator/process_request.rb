@@ -7,21 +7,11 @@ class ProcessRequest
   initialize_with :event, :content
 
   def call
-    Capybara.run_server = false
-    Capybara.default_max_wait_time = 7
-    
-    Capybara.register_driver :selenium_chrome_headless do |app|
-      options = ::Selenium::WebDriver::Chrome::Options.new
-      options.add_argument("window-size=1400,1000")
-      options.add_argument("headless=new")
-      options.add_argument('no-sandbox')
-  
-      Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
-    end
+    setup_capybara
 
     image_file = Tempfile.new('image-generator')
 
-    session = Capybara::Session.new(:selenium_chrome_headless)
+    session = Capybara::Session.new(DRIVER_NAME)
     session.visit(url.to_s)
     session.save_screenshot(image_file.path)
 
@@ -35,6 +25,20 @@ class ProcessRequest
   end
 
   private
+  def setup_capybara
+    Capybara.run_server = false
+    Capybara.default_max_wait_time = 7
+    
+    Capybara.register_driver DRIVER_NAME do |app|
+      options = ::Selenium::WebDriver::Chrome::Options.new
+      options.add_argument("window-size=1400,1000")
+      options.add_argument("headless=new")
+      options.add_argument('no-sandbox')
+  
+      Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+    end
+  end
+
   def url
     Addressable::URI.parse(body[:url])
   end
@@ -43,4 +47,6 @@ class ProcessRequest
   def body
     JSON.parse(event["body"], symbolize_names: true)
   end
+
+  DRIVER_NAME = :selenium_chrome_headless
 end
