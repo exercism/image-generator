@@ -53,7 +53,7 @@ module ImageGenerator
         options.add_argument("--window-size=1400,1000")
         options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
         options.add_argument('--hide-scrollbars')
-        options.add_argument("--headless=new")
+        options.add_argument("--headless")
 
         # Useful for debugging
         options.add_argument('--enable-logging')

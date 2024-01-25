@@ -5,7 +5,6 @@ module ImageGenerator
     initialize_with :event, :content
 
     def call
-      pp event
       {
         statusCode: 200,
         statusDescription: "200 OK",
@@ -13,6 +12,8 @@ module ImageGenerator
         isBase64Encoded: true,
         body: Base64.encode64(screenshot)
       }
+    rescue => e
+      { error: e }
     end
 
     memoize
