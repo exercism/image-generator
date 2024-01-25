@@ -1,4 +1,4 @@
-FROM amazon/aws-lambda-ruby:2.7
+FROM amazon/aws-lambda-ruby:3.2
 
 RUN yum install -y make gcc wget unzip libX11 ImageMagick
 
@@ -13,10 +13,16 @@ RUN CHROME_DRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/
 
 WORKDIR /var/task
 
-# Pre-install these packages as they are slow to install
-# and this way we can leverage Docker layer caching
-RUN gem install json -v '2.3.1' && \
-    gem install nokogiri -v '1.13.10'
+# Pre-install JSON as it is slow to install
+RUN gem install json -v '2.3.1'
+
+# Pre-install nokogiri and all its dependencies
+RUN yum install -y tar xz z pkgconfig libxml2-dev libxslt-dev patch
+RUN gem install pkg-config
+RUN gem install nokogiri -v '1.13.10'
+  #-- \
+  # --with-xml2-dir=/usr/include/libxml2 \
+  # --with-xslt-dir=/usr/include/libxslt
 
 COPY Gemfile Gemfile.lock ./
 
