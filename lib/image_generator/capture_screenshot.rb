@@ -48,11 +48,30 @@ module ImageGenerator
 
       Capybara.register_driver DRIVER_NAME do |app|
         options = ::Selenium::WebDriver::Chrome::Options.new
-        options.add_argument("window-size=1400,1000")
-        options.add_argument("headless=new")
-        options.add_argument('no-sandbox')
-        options.add_argument('disable-dev-shm-usage')
-        options.add_argument("force-device-scale-factor=#{SCALE_FACTOR}")
+        options.add_argument("--window-size=1400,1000")
+        options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
+        options.add_argument('--hide-scrollbars')
+        options.add_argument("--headless=new")
+
+        # Useful for debugging
+        options.add_argument('--enable-logging')
+        options.add_argument('--log-level=0')
+
+        # # Needed for docker
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+
+        # Needed for readonly FS (e.g. Lambda)
+        options.add_argument('--user-data-dir=/tmp/user-data')
+        options.add_argument('--data-path=/tmp/data-path')
+        options.add_argument('--homedir=/tmp')
+        options.add_argument('--disk-cache-dir=/tmp/cache-dir')
+
+        # Maybe useful - keep around in case
+        # options.add_argument('--single-process')
+        # options.add_argument('--disable-gpu')
+        # options.add_argument('--v=99')
+        # options.add_argument('--ignore-certificate-errors')
 
         Capybara::Selenium::Driver.new(app, browser: :chrome, options:)
       end

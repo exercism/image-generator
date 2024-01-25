@@ -25,9 +25,6 @@ RUN bundle config set deployment 'true' && \
     bundle config set without 'development test' && \
     bundle install
 
-RUN mkdir /tmp/.cache
-RUN ln -s /tmp/.cache ~/.cache
-
 COPY . .
 
 CMD [ "lib/image_generator.ImageGenerator.process" ]
