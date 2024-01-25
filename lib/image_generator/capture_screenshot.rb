@@ -46,6 +46,8 @@ module ImageGenerator
       Capybara.run_server = false
       Capybara.default_max_wait_time = 7
 
+      Selenium::WebDriver.logger.level = :debug
+
       Capybara.register_driver DRIVER_NAME do |app|
         options = ::Selenium::WebDriver::Chrome::Options.new
         options.add_argument("--window-size=1400,1000")
