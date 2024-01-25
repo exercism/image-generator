@@ -51,6 +51,7 @@ module ImageGenerator
         options.add_argument("window-size=1400,1000")
         options.add_argument("headless=new")
         options.add_argument('no-sandbox')
+        options.add_argument('disable-dev-shm-usage')
         options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
 
         Capybara::Selenium::Driver.new(app, browser: :chrome, options:)
@@ -58,7 +59,9 @@ module ImageGenerator
     end
 
     memoize
+    # Only /tmp is writeable on AWS Lambda
     def screenshot_filepath = Tempfile.new(['image-generator', '.jpg'], '/tmp').path
+
     def selector = "#image-content"
 
     DRIVER_NAME = :selenium_chrome_headless
