@@ -32,9 +32,14 @@ class ImageGenerator::CaptureScreenshot
   end
 
   def crop_screenshot!
-    crop_arg = "#{@bounds["width"]}x#{@bounds["height"]}+#{@bounds["left"]}+#{@bounds["top"]}"
-    p crop_arg
-    `convert #{screenshot_filepath} -crop #{crop_arg} #{screenshot_filepath}`
+    width = @bounds["width"].to_f * SCALE_FACTOR
+    height = @bounds["height"].to_f * SCALE_FACTOR
+    left = @bounds["left"].to_f * SCALE_FACTOR
+    top = @bounds["top"].to_f * SCALE_FACTOR
+
+    crop_arg = "#{width}x#{height}+#{left}+#{top}"
+    p screenshot_filepath
+    `convert #{screenshot_filepath} -crop #{crop_arg} -quality 85 #{screenshot_filepath}`
   end
 
   def setup_capybara
@@ -46,15 +51,16 @@ class ImageGenerator::CaptureScreenshot
       options.add_argument("window-size=1400,1000")
       options.add_argument("headless=new")
       options.add_argument('no-sandbox')
-      options.add_argument('--force-device-scale-factor=1')
+      options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
 
       Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
     end
   end
 
   memoize
-  def screenshot_filepath = Tempfile.new(['image-generator', '.png']).path
+  def screenshot_filepath = Tempfile.new(['image-generator', '.jpg']).path
   def selector = "#image-content"
 
   DRIVER_NAME = :selenium_chrome_headless
+  SCALE_FACTOR = 2
 end

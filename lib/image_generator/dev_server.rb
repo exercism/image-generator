@@ -9,7 +9,7 @@ module ImageGenerator
     # http://localhost:3024/generate_image?track_slug=ruby&exercise_slug=two-fer&user_handle=erikschierboom
     get '/generate_image' do
       event = {
-        'rawPath' => "/tracks/#{params[:track_slug]}/exercises/#{params[:exercise_slug]}/solutions/#{params[:user_handle]}.png"
+        'rawPath' => "/tracks/#{params[:track_slug]}/exercises/#{params[:exercise_slug]}/solutions/#{params[:user_handle]}.jpg"
       }
       resp = ProcessRequest.(event, nil)
 

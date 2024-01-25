@@ -8,7 +8,7 @@ module ImageGenerator
       {
         statusCode: 200,
         statusDescription: "200 OK",
-        headers: { 'Content-Type': 'image/png' },
+        headers: { 'Content-Type': 'image/jpg' },
         isBase64Encoded: true,
         body: Base64.encode64(screenshot)
       }
@@ -27,6 +27,6 @@ module ImageGenerator
       matchdata.named_captures.transform_keys(&:to_sym)
     end
 
-    SOLUTION_REGEXP = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).png$/
+    SOLUTION_REGEXP = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).jpg$/
   end
 end
