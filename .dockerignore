@@ -1,7 +1,7 @@
-test/
-tmp/
+.appends/
+.github/
 bin/
+output/
 *.md
 /LICENSE
-/package.json/
 /Dockerfile

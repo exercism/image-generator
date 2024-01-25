@@ -1,33 +1,77 @@
-module ImageGenerator
-  class ProcessRequest
-    include Mandate
+require 'capybara/dsl'
+require 'selenium-webdriver'
 
-    initialize_with :event, :context
+class ProcessRequest
+  include Mandate
 
-    def call
-      image_binary_data = ImageGenerator::Solutions::Generate.(
-        track_slug, exercise_slug, user_handle
-      )
+  initialize_with :event, :content
 
-      {
-        statusCode: 200,
-        statusDescription: "200 OK",
-        headers: { 'Content-Type': 'image/png' },
-        isBase64Encoded: true,
-        body: Base64.encode64(image_binary_data)
-      }
-    end
+  def call
+    setup_capybara
+    take_screenshot
+    crop_screenshot
+    response
+  end
 
-    def track_slug = path_parts[:track_slug]
-    def exercise_slug = path_parts[:exercise_slug]
-    def user_handle = path_parts[:user_handle]
+  private
+  def response
+    {
+      statusCode: 200,
+      statusDescription: "200 OK",
+      headers: { 'Content-Type': 'application/json' },
+      isBase64Encoded: true,
+      body: Base64.encode64(screenshot)
+    }
+  end
 
-    memoize
-    def path_parts
-      regexp = /^\/tracks\/(?<track_slug>[^\\]+)\/exercises\/(?<exercise_slug>[^\\]+)\/solutions\/(?<user_handle>[^\\]+).png$/
-      regexp.match(event["rawPath"])
+  def screenshot
+    File.read(screenshot_file)
+  end
 
-      # TODO: Raise if this doesn't match
+  def take_screenshot
+    session = Capybara::Session.new(DRIVER_NAME)
+    session.visit(url.to_s)
+    @bounds = session.evaluate_script("document.querySelector('#{selector}').getBoundingClientRect()")
+    session.save_screenshot(screenshot_file)
+    session.quit
+  end
+
+  def crop_screenshot
+    crop_arg = "#{@bounds["width"]}x#{@bounds["height"]}+#{@bounds["left"]}+#{@bounds["top"]}"    
+    `convert #{screenshot_file} -crop #{crop_arg} #{screenshot_file}`
+  end
+
+  def setup_capybara
+    Capybara.run_server = false
+    Capybara.default_max_wait_time = 7
+    
+    Capybara.register_driver DRIVER_NAME do |app|
+      options = ::Selenium::WebDriver::Chrome::Options.new
+      options.add_argument("window-size=1400,1000")
+      options.add_argument("headless=new")
+      options.add_argument('no-sandbox')
+  
+      Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
     end
   end
+
+  def url
+    Addressable::URI.parse(body[:url])
+  end
+
+  def selector
+    body[:selector]
+  end
+
+  memoize
+  def body
+    JSON.parse(event["body"], symbolize_names: true)
+  end
+
+  memoize
+  def screenshot_file
+    Tempfile.new('image-generator').path
+  end
+
+  DRIVER_NAME = :selenium_chrome_headless
 end

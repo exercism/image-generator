@@ -1,26 +1,7 @@
-# Exercism Image Generator
+# Exercism's Image Generator
 
-## Setup
-```bash
-npm i -g carbon-now-cli
-bundle install
-```
+![Tests][tests-badge]
 
-## Run the tests
-```bash
-bundle exec rake test
-```
+TODO
 
-## Generate an image locally
-
-Start the webserver:
-```bash
-./bin/dev
-```
-
-Then (with params matching your website setup):
-```bash
-http://local.exercism.io:3024/generate_image?type=solution&track_slug=ruby&exercise_slug=gigasecond&user_handle=iHiD
-```
-
-
+[tests-badge]: https://github.com/exercism/image-generator/workflows/Test/badge.svg
