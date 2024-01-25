@@ -1,6 +1,8 @@
 FROM amazon/aws-lambda-ruby:3.2
 
 RUN yum install -y make gcc wget unzip libX11 ImageMagick
+RUN yum install -y tar xz z pkgconfig libxml2-dev libxslt-dev patch
+RUN gem install pkg-config
 
 RUN GOOGLE_CHROME_VERSION=114.0.5735.198 && \
     GOOGLE_CHROME_FILENAME=google-chrome-stable-${GOOGLE_CHROME_VERSION}-1.x86_64.rpm && \
@@ -13,20 +15,12 @@ RUN CHROME_DRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/
 
 WORKDIR /var/task
 
-# Pre-install JSON as it is slow to install
-RUN gem install json -v '2.3.1'
-
-# Pre-install nokogiri and all its dependencies
-RUN yum install -y tar xz z pkgconfig libxml2-dev libxslt-dev patch
-RUN gem install pkg-config
-RUN gem install nokogiri -v '1.13.10'
-  #-- \
-  # --with-xml2-dir=/usr/include/libxml2 \
-  # --with-xslt-dir=/usr/include/libxslt
+RUN gem install bundler -v 2.4.17 && \
+    gem install json -v 2.3.1 && \
+    gem install nokogiri -v 1.13.10
 
 COPY Gemfile Gemfile.lock ./
 
-RUN gem install bundler -v 2.4.22
 RUN bundle config set deployment 'true' && \
     bundle config set without 'development test' && \
     bundle install
