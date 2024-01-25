@@ -58,7 +58,7 @@ module ImageGenerator
     end
 
     memoize
-    def screenshot_filepath = Tempfile.new(['image-generator', '.jpg']).path
+    def screenshot_filepath = Tempfile.new(['image-generator', '.jpg'], '/tmp').path
     def selector = "#image-content"
 
     DRIVER_NAME = :selenium_chrome_headless
