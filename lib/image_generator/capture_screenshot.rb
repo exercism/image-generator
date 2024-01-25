@@ -51,8 +51,6 @@ module ImageGenerator
       Capybara.register_driver DRIVER_NAME do |app|
         options = ::Selenium::WebDriver::Chrome::Options.new
 
-        options.binary_location = '/opt/google/chrome/chrome'
-
         options.add_argument("--window-size=1400,1000")
         options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
         options.add_argument('--hide-scrollbars')
@@ -81,15 +79,24 @@ module ImageGenerator
         # options.add_argument('--v=99')
         # options.add_argument('--ignore-certificate-errors')
 
-        Capybara::Selenium::Driver.new(app, browser: :chrome, options:)
+        Capybara::Selenium::Driver.new(
+          app, 
+                                       browser: :chrome, 
+    # service: ::Selenium::WebDriver::Service.chrome(path: '/opt/google/chrome/chrome'),
+                                       options: options
+        )
       end
     end
 
     memoize
     # Only /tmp is writeable on AWS Lambda
-    def screenshot_filepath = Tempfile.new(['image-generator', '.jpg'], '/tmp').path
+    def screenshot_filepath
+      Tempfile.new(['image-generator', '.jpg'], '/tmp').path
+    end
 
-    def selector = "#image-content"
+    def selector 
+      "#image-content"
+    end
 
     DRIVER_NAME = :selenium_chrome_headless
     SCALE_FACTOR = 2

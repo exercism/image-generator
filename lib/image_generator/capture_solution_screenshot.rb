@@ -5,13 +5,19 @@ module ImageGenerator
   class CaptureSolutionScreenshot
     include Mandate
 
-    initialize_with track_slug: Mandate::NO_DEFAULT, exercise_slug: Mandate::NO_DEFAULT, user_handle: Mandate::NO_DEFAULT
+    def initialize(track_slug, exercise_slug, user_handle)
+      @track_slug = track_slug
+      @exercise_slug = exercise_slug
+      @user_handle = user_handle
+    end
 
     def call
       CaptureScreenshot.(url)
     end
 
     private
+    attr_reader :track_slug, :exercise_slug, :user_handle
+
     def url
       "http://local.exercism.io:3020/images/solutions/#{track_slug}/#{exercise_slug}/#{user_handle}"
     end

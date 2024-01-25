@@ -18,7 +18,8 @@ module ImageGenerator
     def screenshot
       return unless (matchdata = SOLUTION_REGEXP.match(event["rawPath"]))
 
-      CaptureSolutionScreenshot.(**extract_captures(matchdata))
+      data = extract_captures(matchdata)
+      CaptureSolutionScreenshot.(data[:track_slug], data[:exercise_slug], data[:user_handle])
 
       # TODO: Raise if this doesn't match
     end

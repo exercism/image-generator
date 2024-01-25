@@ -14,18 +14,23 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
-    json (2.7.1)
+    childprocess (4.1.0)
+    json (2.3.1)
     language_server-protocol (3.17.0.3)
-    mandate (2.2.0)
+    mandate (1.0.0)
     matrix (0.4.2)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.5)
     multi_json (1.15.0)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
     nio4r (2.7.0)
-    nokogiri (1.16.0-arm64-darwin)
+    nokogiri (1.13.10)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.16.0-x86_64-linux)
+    nokogiri (1.13.10-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.13.10-x86_64-linux)
       racc (~> 1.4)
     parallel (1.24.0)
     parser (3.3.0.5)
@@ -64,11 +69,10 @@ GEM
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
-    selenium-webdriver (4.17.0)
-      base64 (~> 0.2)
+    selenium-webdriver (4.1.0)
+      childprocess (>= 0.5, < 5.0)
       rexml (~> 3.2, >= 3.2.5)
-      rubyzip (>= 1.2.2, < 3.0)
-      websocket (~> 1.0)
+      rubyzip (>= 1.2.2)
     sinatra (3.2.0)
       mustermann (~> 3.0)
       rack (~> 2.2, >= 2.2.4)
@@ -82,25 +86,25 @@ GEM
       tilt (~> 2.0)
     tilt (2.3.0)
     unicode-display_width (2.5.0)
-    websocket (1.2.10)
     xpath (3.2.0)
       nokogiri (~> 1.8)
     zeitwerk (2.6.12)
 
 PLATFORMS
   arm64-darwin-22
+  ruby
   x86_64-linux
 
 DEPENDENCIES
   capybara
-  json (= 2.7.1)
+  json (= 2.3.1)
   mandate
-  nokogiri (= 1.16.0)
+  nokogiri (= 1.13.10)
   pkg-config
   puma
   rubocop
   rubocop-performance
-  selenium-webdriver
+  selenium-webdriver (= 4.1.0)
   sinatra (= 3.2.0)
   sinatra-contrib
   zeitwerk

@@ -1,4 +1,4 @@
-FROM amazon/aws-lambda-ruby:3.2
+FROM amazon/aws-lambda-ruby:2.7
 
 RUN yum install -y make gcc wget unzip libX11 ImageMagick
 RUN yum install -y tar xz z pkgconfig libxml2-dev libxslt-dev patch
@@ -16,8 +16,8 @@ RUN GOOGLE_CHROME_VERSION=114.0.5735.90 && \
 WORKDIR /var/task
 
 RUN gem install bundler -v 2.4.17
-RUN gem install json -v 2.7.1
-RUN gem install nokogiri -v 1.16.0
+RUN gem install json -v 2.3.1
+RUN gem install nokogiri -v 1.13.10
 
 COPY Gemfile Gemfile.lock ./
 

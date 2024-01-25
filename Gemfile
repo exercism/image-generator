@@ -1,13 +1,13 @@
 source 'https://rubygems.org'
 
 gem 'zeitwerk'
-gem 'mandate'
+gem 'mandate'#, '~> 1.0'
 gem 'capybara'
-gem 'selenium-webdriver'
+gem 'selenium-webdriver', '4.1.0'
 
 gem 'pkg-config'
-gem 'json', '2.7.1'
-gem 'nokogiri', '1.16.0'
+gem 'json', '2.3.1'
+gem 'nokogiri', '1.13.10'
 
 group :development do
   gem 'rubocop', require: false
