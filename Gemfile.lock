@@ -19,6 +19,10 @@ GEM
     mandate (2.2.0)
     matrix (0.4.2)
     mini_mime (1.1.5)
+    multi_json (1.15.0)
+    mustermann (3.0.0)
+      ruby2_keywords (~> 0.0.1)
+    nio4r (2.7.0)
     nokogiri (1.16.0-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.0-x86_64-linux)
@@ -29,8 +33,13 @@ GEM
       racc
     pkg-config (1.5.6)
     public_suffix (5.0.4)
+    puma (6.4.2)
+      nio4r (~> 2.0)
     racc (1.7.3)
-    rack (3.0.8)
+    rack (2.2.8)
+    rack-protection (3.2.0)
+      base64 (>= 0.1.0)
+      rack (~> 2.2, >= 2.2.4)
     rack-test (2.1.0)
       rack (>= 1.3)
     rainbow (3.1.1)
@@ -53,12 +62,25 @@ GEM
       rubocop (>= 1.48.1, < 2.0)
       rubocop-ast (>= 1.30.0, < 2.0)
     ruby-progressbar (1.13.0)
+    ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
     selenium-webdriver (4.17.0)
       base64 (~> 0.2)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    sinatra (3.2.0)
+      mustermann (~> 3.0)
+      rack (~> 2.2, >= 2.2.4)
+      rack-protection (= 3.2.0)
+      tilt (~> 2.0)
+    sinatra-contrib (3.2.0)
+      multi_json (>= 0.0.2)
+      mustermann (~> 3.0)
+      rack-protection (= 3.2.0)
+      sinatra (= 3.2.0)
+      tilt (~> 2.0)
+    tilt (2.3.0)
     unicode-display_width (2.5.0)
     websocket (1.2.10)
     xpath (3.2.0)
@@ -75,9 +97,12 @@ DEPENDENCIES
   mandate
   nokogiri (= 1.16.0)
   pkg-config
+  puma
   rubocop
   rubocop-performance
   selenium-webdriver
+  sinatra (= 3.2.0)
+  sinatra-contrib
   zeitwerk
 
 BUNDLED WITH

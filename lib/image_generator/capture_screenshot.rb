@@ -52,7 +52,7 @@ module ImageGenerator
         options.add_argument("headless=new")
         options.add_argument('no-sandbox')
         options.add_argument('disable-dev-shm-usage')
-        options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
+        options.add_argument("force-device-scale-factor=#{SCALE_FACTOR}")
 
         Capybara::Selenium::Driver.new(app, browser: :chrome, options:)
       end
