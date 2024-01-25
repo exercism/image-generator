@@ -25,7 +25,8 @@ RUN bundle config set deployment 'true' && \
     bundle config set without 'development test' && \
     bundle install
 
-RUN ln -s /tmp/cache .cache
+RUN mkdir /tmp/.cache
+RUN ln -s /tmp/.cache ~/.cache
 
 COPY . .
 
