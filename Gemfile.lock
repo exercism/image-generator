@@ -70,9 +70,9 @@ PLATFORMS
 
 DEPENDENCIES
   capybara
-  json
+  json (= 2.7.1)
   mandate
-  nokogiri
+  nokogiri (= 1.16.0)
   pkg-config
   rubocop
   rubocop-performance
