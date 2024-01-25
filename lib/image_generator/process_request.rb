@@ -9,6 +9,7 @@ class ProcessRequest
   def call
     setup_capybara
     take_screenshot
+    crop_screenshot
     response
   end
 
@@ -30,8 +31,15 @@ class ProcessRequest
   def take_screenshot
     session = Capybara::Session.new(DRIVER_NAME)
     session.visit(url.to_s)
+    # TODO: parameterize selector
+    @bounds = session.evaluate_script('document.querySelector(".c-perk").getBoundingClientRect()')
     session.save_screenshot(screenshot_file)
     session.quit
+  end
+
+  def crop_screenshot
+    crop_arg = "#{@bounds["width"]}x#{@bounds["height"]}+#{@bounds["left"]}+#{@bounds["top"]}"    
+    `convert #{screenshot_file} -crop #{crop_arg} #{screenshot_file}`
   end
 
   def setup_capybara

@@ -14,6 +14,9 @@
 # Example:
 # ./bin/run-in-docker.sh https://exercism.org/images/solutions/ruby/two-fer/erikSchierboom
 
+# Stop executing when a command returns a non-zero return code
+set -e
+
 # If any required arguments is missing, print the usage and exit
 if [[ $# -lt 1 ]]; then
     echo "usage: ./bin/run-in-docker.sh image-url [path/to/output/directory/]"
