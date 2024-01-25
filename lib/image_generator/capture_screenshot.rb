@@ -50,10 +50,13 @@ module ImageGenerator
 
       Capybara.register_driver DRIVER_NAME do |app|
         options = ::Selenium::WebDriver::Chrome::Options.new
+
+        options.binary_location = '/opt/google/chrome/chrome'
+
         options.add_argument("--window-size=1400,1000")
         options.add_argument("--force-device-scale-factor=#{SCALE_FACTOR}")
         options.add_argument('--hide-scrollbars')
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")
 
         # Useful for debugging
         options.add_argument('--enable-logging')
@@ -70,8 +73,11 @@ module ImageGenerator
         options.add_argument('--disk-cache-dir=/tmp/cache-dir')
 
         # Maybe useful - keep around in case
-        # options.add_argument('--single-process')
-        # options.add_argument('--disable-gpu')
+        options.add_argument('--single-process')
+        options.add_argument('--disable-gpu')
+        options.add_argument("--disable-dev-tools")
+        options.add_argument("--no-zygote")
+        options.add_argument("--remote-debugging-port=9222")
         # options.add_argument('--v=99')
         # options.add_argument('--ignore-certificate-errors')
 

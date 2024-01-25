@@ -12,8 +12,6 @@ module ImageGenerator
         isBase64Encoded: true,
         body: Base64.encode64(screenshot)
       }
-    rescue => e
-      { error: e }
     end
 
     memoize

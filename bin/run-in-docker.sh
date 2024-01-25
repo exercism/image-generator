@@ -48,14 +48,17 @@ raw_path=$(jq -n --arg url "${image_url}" --arg selector "${selector}" '{url: $u
 event_json=$(jq -n --arg path "${image_url}" '{rawPath: $path}')
 function_url="http://localhost:${container_port}/2015-03-31/functions/function/invocations"
 
-if [ -z "${3}" ]; then
-    curl -XPOST "${function_url}" --data "${event_json}"
-else
-    output_dir=$(realpath "${3%/}")
-    mkdir -p "${output_dir}"
-    curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/response.json"
-    jq -r '.body' "${output_dir}/response.json" | base64 --decode > "${output_dir}/image.jpg"
-fi
+curl -XPOST "${function_url}" --data "${event_json}"
+
+
+# if [ -z "${3}" ]; then
+#     curl -XPOST "${function_url}" --data "${event_json}"
+# else
+#     output_dir=$(realpath "${3%/}")
+#     mkdir -p "${output_dir}"
+#     curl -XPOST "${function_url}" --data "${event_json}" --silent > "${output_dir}/response.json"
+#     jq -r '.body' "${output_dir}/response.json" | base64 --decode > "${output_dir}/image.jpg"
+# fi
 
 echo "done"
 
