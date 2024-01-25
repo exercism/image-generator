@@ -15,9 +15,9 @@ RUN CHROME_DRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/
 
 WORKDIR /var/task
 
-RUN gem install bundler -v 2.4.17 && \
-    gem install json -v 2.3.1 && \
-    gem install nokogiri -v 1.13.10
+RUN gem install bundler -v 2.4.17
+RUN gem install json -v 2.7.1
+RUN gem install nokogiri -v 1.16.0
 
 COPY Gemfile Gemfile.lock ./
 

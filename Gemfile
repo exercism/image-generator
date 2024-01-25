@@ -6,7 +6,8 @@ gem 'capybara'
 gem 'selenium-webdriver'
 
 gem 'pkg-config'
-gem 'nokogiri'
+gem 'json', '2.7.1'
+gem 'nokogiri', '1.16.0'
 
 group :development do
   gem 'rubocop', require: false
