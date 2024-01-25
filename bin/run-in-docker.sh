@@ -29,7 +29,9 @@ if [[ -z "${SKIP_BUILD}" ]]; then
 fi
 
 # Run the Docker image using the settings mimicking the production environment
+# The shm-size is set to 2gb as otherwise the page crashes when visiting
 container_id=$(docker run \
+    --shm-size=2gb \
     --detach \
     --publish ${container_port}:8080 \
     exercism/image-generator)
