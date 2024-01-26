@@ -50,6 +50,11 @@ class ProcessRequest
       options.add_argument("window-size=1400,1000")
       options.add_argument("headless=new")
       options.add_argument('no-sandbox')
+      options.add_argument('disable-dev-shm-usage')
+      options.add_argument('user-data-dir=/tmp/user-data')
+      options.add_argument('data-path=/tmp/data-path')
+      options.add_argument('homedir=/tmp')
+      options.add_argument('disk-cache-dir=/tmp/cache-dir')
   
       Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
     end
