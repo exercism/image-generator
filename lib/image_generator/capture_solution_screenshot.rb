@@ -19,7 +19,7 @@ module ImageGenerator
     attr_reader :track_slug, :exercise_slug, :user_handle
 
     def url
-      "http://local.exercism.io:3020/images/solutions/#{track_slug}/#{exercise_slug}/#{user_handle}"
+      "https://exercism.org/images/solutions/#{track_slug}/#{exercise_slug}/#{user_handle}"
     end
   end
 end
