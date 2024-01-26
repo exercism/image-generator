@@ -29,7 +29,7 @@ class ProcessRequest
   end
 
   def take_screenshot
-    session = Capybara::Session.new(DRIVER_NAME)
+    session = Capybara::Session.new(:headless_chrome)
     session.visit(url.to_s)
     @bounds = session.evaluate_script("document.querySelector('#{selector}').getBoundingClientRect()")
     session.save_screenshot(screenshot_file)
@@ -37,27 +37,47 @@ class ProcessRequest
   end
 
   def crop_screenshot
-    crop_arg = "#{@bounds["width"]}x#{@bounds["height"]}+#{@bounds["left"]}+#{@bounds["top"]}"    
+    crop_arg = "#{@bounds["width"]}x#{@bounds["height"]}+#{@bounds["left"]}+#{@bounds["top"]}"
     `convert #{screenshot_file} -crop #{crop_arg} #{screenshot_file}`
   end
 
   def setup_capybara
-    Capybara.run_server = false
-    Capybara.default_max_wait_time = 7
-    
+    # Capybara.run_server = false
+    # Capybara.default_max_wait_time = 7
+
+    # Capybara.register_driver DRIVER_NAME do |app|
+    #   options = ::Selenium::WebDriver::Chrome::Options.new
+    #   options.add_argument("window-size=1400,1000")
+    #   options.add_argument("headless")
+    #   options.add_argument('no-sandbox')
+    #   options.add_argument('disable-dev-shm-usage')
+    #   options.add_argument('single-process')
+    #   options.add_argument('disable-gpu')
+    #   options.add_argument('enable-features=NetworkService,NetworkServiceInProcess')
+    #   options.add_argument('user-data-dir=/tmp/user-data')
+    #   options.add_argument('data-path=/tmp/data-path')
+    #   options.add_argument('homedir=/tmp')
+    #   options.add_argument('disk-cache-dir=/tmp/cache-dir')
+
+    #   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+    # end
+
+
     Capybara.register_driver DRIVER_NAME do |app|
-      options = ::Selenium::WebDriver::Chrome::Options.new
-      options.add_argument("window-size=1400,1000")
-      options.add_argument("headless=new")
-      options.add_argument('no-sandbox')
-      options.add_argument('disable-dev-shm-usage')
-      options.add_argument('user-data-dir=/tmp/user-data')
-      options.add_argument('data-path=/tmp/data-path')
-      options.add_argument('homedir=/tmp')
-      options.add_argument('disk-cache-dir=/tmp/cache-dir')
-  
-      Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+      caps = ::Selenium::WebDriver::Remote::Capabilities.chrome(
+        "goog:chromeOptions": {
+          args: CHROMIUM_ARGS
+        }
+      )
+
+      Capybara::Selenium::Driver.new(app,
+                                     browser: :chrome,
+                                     capabilities: caps)
     end
+
+    Capybara.default_driver = DRIVER_NAME
+    Capybara.javascript_driver = DRIVER_NAME
+    Capybara::Session.new DRIVER_NAME
   end
 
   def url
@@ -78,5 +98,11 @@ class ProcessRequest
     Tempfile.new('image-generator').path
   end
 
-  DRIVER_NAME = :selenium_chrome_headless
+  DRIVER_NAME = :headless_chrome
+
+  CHROMIUM_ARGS = %w[headless
+                 enable-features=NetworkService,NetworkServiceInProcess
+                 no-sandbox
+                 disable-dev-shm-usage
+                 disable-gpu]
 end
