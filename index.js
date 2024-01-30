@@ -3,9 +3,27 @@ const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 
 const imagePath = "/tmp/screenshot.jpg";
+const baseUrl = "https://exercism.org";
+const solutionRegex =
+  /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)\.jpg$/;
+
+function rawPathToScreenshotData(rawPath) {
+  if ((solutionMatch = solutionRegex.exec(rawPath))) {
+    const { track_slug, exercise_slug, user_handle } = solutionMatch.groups;
+
+    return {
+      url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
+      waitForSelector: "#image-content .c-code-pane",
+    };
+  }
+
+  throw new Error(`Could not map raw path '${rawPath}' to image URL.`);
+}
 
 exports.handler = async (event) => {
   try {
+    const { url, waitForSelector } = rawPathToScreenshotData(event.rawPath);
+
     const browser = await puppeteer.launch({
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
@@ -15,8 +33,8 @@ exports.handler = async (event) => {
     });
     const page = await browser.newPage();
 
-    await page.goto(event.url);
-    await page.waitForSelector("#image-content .c-code-pane");
+    await page.goto(url);
+    await page.waitForSelector(waitForSelector);
 
     const image = await page.$("#image-content");
     await image.screenshot({
@@ -26,18 +44,16 @@ exports.handler = async (event) => {
     });
     await browser.close();
 
-    const response = {
+    return {
       statusCode: 200,
       body: fs.readFileSync(imagePath, { encoding: "base64" }),
       headers: { "Content-Type": "image/jpeg" },
       isBase64Encoded: true,
     };
-    return response;
   } catch (err) {
-    const response = {
+    return {
       statusCode: 500,
-      body: JSON.stringify(err),
+      body: err.message,
     };
-    return response;
   }
 };
