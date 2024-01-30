@@ -2,5 +2,9 @@
   "name": "image-generator",
   "version": "0.0.1",
   "main": "index.js",
-  "license": "GNU AFFERO GPLV3"
+  "license": "GNU AFFERO GPLV3",
+  "dependencies": {
+    "@sparticuz/chromium": "^121.0.0",
+    "puppeteer-core": "^21.10.0"
+  }
 }
