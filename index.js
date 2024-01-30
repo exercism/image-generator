@@ -30,7 +30,12 @@ exports.handler = async (event) => {
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
       defaultViewport: chromium.defaultViewport,
-      args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+      args: [
+        ...chromium.args,
+        "--hide-scrollbars",
+        "--disable-web-security",
+        "--force-device-scale-factor=2",
+      ],
     });
     const page = await browser.newPage();
 
