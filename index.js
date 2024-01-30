@@ -2,7 +2,8 @@ const fs = require("fs");
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 
-const imagePath = "/tmp/screenshot.jpg";
+const extension = "webp";
+const imagePath = `/tmp/screenshot.${extension}`;
 const baseUrl = "https://exercism.org";
 const solutionRegex =
   /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)\.jpg$/;
@@ -39,7 +40,7 @@ exports.handler = async (event) => {
     const image = await page.$("#image-content");
     await image.screenshot({
       path: imagePath,
-      type: "jpeg",
+      type: extension,
       quality: 80,
     });
     await browser.close();
@@ -47,7 +48,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       body: fs.readFileSync(imagePath, { encoding: "base64" }),
-      headers: { "Content-Type": "image/jpeg" },
+      headers: { "Content-Type": `image/${extension}` },
       isBase64Encoded: true,
     };
   } catch (err) {
