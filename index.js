@@ -14,16 +14,18 @@ exports.handler = async (event) => {
     const page = await browser.newPage();
 
     await page.goto(event.url);
+    await page.waitForSelector("#image-content .c-code-pane");
 
-    await page.screenshot({
-      path: "/tmp/screenshot.jpg",
-      fullPage: true,
+    const image = await page.$("#image-content");
+    await image.screenshot({
+      path: "/tmp/screenshot.png",
+      type: "png",
     });
     await browser.close();
 
     const response = {
       statusCode: 200,
-      body: fs.readFileSync("/tmp/screenshot.jpg", { encoding: "base64" }),
+      body: fs.readFileSync("/tmp/screenshot.png", { encoding: "base64" }),
     };
     return response;
   } catch (err) {

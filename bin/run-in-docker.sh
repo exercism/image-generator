@@ -12,7 +12,7 @@
 # If the output directory is specified, also write the image to that directory.
 
 # Example:
-# ./bin/run-in-docker.sh https://exercism.org/images/solutions/ruby/two-fer/erikSchierboom
+# ./bin/run-in-docker.sh https://exercism.org/images/solutions/csharp/two-fer/erikschierboom
 
 # Stop executing when a command returns a non-zero return code
 set -e
