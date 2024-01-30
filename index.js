@@ -34,6 +34,7 @@ exports.handler = async (event) => {
         ...chromium.args,
         "--hide-scrollbars",
         "--disable-web-security",
+        "--high-dpi-support=1",
         "--force-device-scale-factor=2",
       ],
     });
