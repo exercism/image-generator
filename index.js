@@ -2,6 +2,8 @@ const fs = require("fs");
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 
+const imagePath = "/tmp/screenshot.jpg";
+
 exports.handler = async (event) => {
   try {
     const browser = await puppeteer.launch({
@@ -18,14 +20,17 @@ exports.handler = async (event) => {
 
     const image = await page.$("#image-content");
     await image.screenshot({
-      path: "/tmp/screenshot.png",
-      type: "png",
+      path: imagePath,
+      type: "jpeg",
+      quality: 80,
     });
     await browser.close();
 
     const response = {
       statusCode: 200,
-      body: fs.readFileSync("/tmp/screenshot.png", { encoding: "base64" }),
+      body: fs.readFileSync(imagePath, { encoding: "base64" }),
+      headers: { "Content-Type": "image/jpeg" },
+      isBase64Encoded: true,
     };
     return response;
   } catch (err) {
