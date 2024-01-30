@@ -21,7 +21,7 @@ Resources:
             Path: /generate_image
             Method: post
     Metadata:
-      DockerTag: ruby2.7-v1
+      DockerTag: nodejs-20
       DockerContext: ./
       Dockerfile: Dockerfile
 
