@@ -14,6 +14,7 @@ function rawPathToScreenshotData(rawPath) {
 
     return {
       url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
+      imageSelector: "#image-content",
       waitForSelector: "#image-content .c-code-pane",
     };
   }
@@ -23,7 +24,9 @@ function rawPathToScreenshotData(rawPath) {
 
 exports.handler = async (event) => {
   try {
-    const { url, waitForSelector } = rawPathToScreenshotData(event.rawPath);
+    const { url, imageSelector, waitForSelector } = rawPathToScreenshotData(
+      event.rawPath
+    );
 
     const browser = await puppeteer.launch({
       executablePath: await chromium.executablePath(),
@@ -42,7 +45,7 @@ exports.handler = async (event) => {
     await page.goto(url);
     await page.waitForSelector(waitForSelector);
 
-    const image = await page.$("#image-content");
+    const image = await page.$(imageSelector);
     await image.screenshot({
       path: imagePath,
       type: extension,
