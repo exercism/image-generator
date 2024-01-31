@@ -42,6 +42,6 @@ trap "docker stop $container_id > /dev/null" EXIT
 event_json=$(jq -n --arg rawPath "${raw_image_path}" '{rawPath: $rawPath}')
 curl "http://localhost:${port}/2015-03-31/functions/function/invocations" -d "${event_json}" --silent > "${output_dir}/response.json"
 
-jq -r '.body' "${output_dir}/response.json" | base64 --decode > "${output_dir}/image.webp"
+jq -r '.body' "${output_dir}/response.json" | base64 --decode > "${output_dir}/image.jpg"
 
 echo "done"
