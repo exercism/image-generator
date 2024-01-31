@@ -29,13 +29,12 @@ exports.handler = async (event) => {
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
-      defaultViewport: chromium.defaultViewport,
+      defaultViewport: { ...chromium.defaultViewport, deviceScaleFactor: 2 },
       args: [
         ...chromium.args,
         "--hide-scrollbars",
         "--disable-web-security",
         "--high-dpi-support=1",
-        "--force-device-scale-factor=2",
       ],
     });
     const page = await browser.newPage();
