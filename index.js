@@ -4,8 +4,9 @@ const chromium = require("@sparticuz/chromium");
 
 const imagePath = "/tmp/screenshot.jpg";
 const baseUrl = "https://exercism.org";
-const solutionRegex =
-  /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)\.jpg$/;
+
+const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)\.jpg$/;
+const profileRegex = /^\/profiles\/(?<user_handle>.+?)\.jpg$/;
 
 function rawPathToScreenshotData(rawPath) {
   if ((solutionMatch = solutionRegex.exec(rawPath))) {
@@ -15,6 +16,16 @@ function rawPathToScreenshotData(rawPath) {
       url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
       imageSelector: "#image-content",
       waitForSelector: "#image-content .c-code-pane",
+    };
+  }
+
+  if ((profileMatch = profileRegex.exec(rawPath))) {
+    const { user_handle } = profileMatch.groups;
+
+    return {
+      url: `${baseUrl}/images/profiles/${user_handle}`,
+      imageSelector: "#image-content",
+      waitForSelector: "#image-content #contributions-chart",
     };
   }
 
