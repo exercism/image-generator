@@ -8,6 +8,8 @@ const baseUrl = "https://exercism.org";
 const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)\.jpg$/;
 const profileRegex = /^\/profiles\/(?<user_handle>.+?)\.jpg$/;
 
+const crypto = require("crypto");
+
 function rawPathToScreenshotData(rawPath) {
   if ((solutionMatch = solutionRegex.exec(rawPath))) {
     const { track_slug, exercise_slug, user_handle } = solutionMatch.groups;
@@ -63,12 +65,16 @@ exports.handler = async (event) => {
     });
     await browser.close();
 
+    const imageBuffer = fs.readFileSync(imagePath);
+    const etag = crypto.createHash("md5").update(imageBuffer).digest("hex");
+
     return {
       statusCode: 200,
       body: fs.readFileSync(imagePath, { encoding: "base64" }),
       headers: { 
         "Content-Type": "image/jpg",
-        "Cache-Control": "public, max-age=86400" // One day
+        "Cache-Control": "public, max-age=86400", // One day
+        "Last-Modified": new Date().toUTCString()
       },
       isBase64Encoded: true,
     };
