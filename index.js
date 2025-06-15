@@ -66,7 +66,10 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       body: fs.readFileSync(imagePath, { encoding: "base64" }),
-      headers: { "Content-Type": "image/jpg" },
+      headers: { 
+        "Content-Type": "image/jpg",
+        "Cache-Control": "public, max-age=86400" // One day
+      },
       isBase64Encoded: true,
     };
   } catch (err) {
