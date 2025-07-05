@@ -68,13 +68,28 @@ exports.handler = async (event) => {
     const imageBuffer = fs.readFileSync(imagePath);
     const etag = crypto.createHash("md5").update(imageBuffer).digest("hex");
 
+    // Try to extract the 10-digit timestamp from the URL
+    // if it ends with -${timestamp}.jpg
+    const match = event.rawPath.match(/-(\d{10})\.\w+$/);
+
+    const isTimestamped = !!match;
+    const cacheControl = isTimestamped
+      ? "public, max-age=31536000, immutable" // New URL containing a timestamp that will never change
+      : "public, max-age=86400"; // Legacy URL without a timestamp
+
+    // Use extracted timestamp if available, else use current time
+    const lastModified = isTimestamped
+      ? new Date(parseInt(match[1], 10) * 1000).toUTCString()
+      : new Date().toUTCString();
+
     return {
       statusCode: 200,
       body: fs.readFileSync(imagePath, { encoding: "base64" }),
       headers: { 
         "Content-Type": "image/jpg",
-        "Cache-Control": "public, max-age=86400", // One day
-        "Last-Modified": new Date().toUTCString()
+        "Cache-Control": cacheControl,
+        "Last-Modified": lastModified,
+        "Etag": `W/"${etag}"`
       },
       isBase64Encoded: true,
     };
