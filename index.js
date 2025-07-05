@@ -5,8 +5,8 @@ const chromium = require("@sparticuz/chromium");
 const imagePath = "/tmp/screenshot.jpg";
 const baseUrl = "https://exercism.org";
 
-const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)\.jpg$/;
-const profileRegex = /^\/profiles\/(?<user_handle>.+?)\.jpg$/;
+const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
+const profileRegex = /^\/profiles\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
 
 const crypto = require("crypto");
 
