@@ -16,13 +16,13 @@
 // solution-go-tabs.json is tab-indented Go at indent_size 4. Space-indented
 // tracks look the same whatever indent_size says, so it takes a track that
 // actually ships literal tabs to see that value being honoured.
-//   node dev/render.js --url https://exercism.org/images/solutions/ruby/bob/ihid
+//   node dev/render.js --url https://internal.exercism.org/spi/solution_image_data/ruby/bob/ihid
 //   node dev/render.js --out /tmp/mine.png
 //
-// --url hits the real data endpoint, so it needs the website to be serving
-// /data (exercism/website#9348) and to not be behind a bot challenge. Against
-// production you'll get a Cloudflare challenge unless your IP is allowlisted;
-// point it at localhost:3020 instead.
+// --url takes the data endpoint itself. internal.exercism.org only resolves
+// from inside the VPC, so locally point it at your own Rails:
+//
+//   node dev/render.js --url http://localhost:3020/spi/solution_image_data/ruby/bob/ihid
 
 const fs = require("fs");
 const path = require("path");
@@ -41,11 +41,11 @@ const fixture = flag("fixture", path.join(__dirname, "fixtures", "solution.json"
 async function payload() {
   if (!url) return JSON.parse(fs.readFileSync(fixture, "utf8"));
 
-  const response = await fetch(`${url}/data`);
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
-      `${url}/data returned ${response.status}. ` +
-        "A 403 with a Cloudflare challenge means this IP isn't allowlisted."
+      `${url} returned ${response.status}. ` +
+        "internal.exercism.org only resolves inside the VPC - use your local Rails."
     );
   }
   return response.json();
@@ -59,7 +59,7 @@ async function main() {
 
   const started = Date.now();
   const { generate } = require("../satori_renderer");
-  const { body, contentType } = await generate({ url: url || "fixture://solution" });
+  const { body, contentType } = await generate({ dataUrl: url || "fixture://solution" });
   const elapsed = Date.now() - started;
 
   fs.writeFileSync(out, body);

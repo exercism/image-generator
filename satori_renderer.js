@@ -290,21 +290,24 @@ function card(data) {
   );
 }
 
-async function fetchData(pageUrl) {
-  const url = `${pageUrl}/data`;
-  const response = await fetch(url);
+async function fetchData(dataUrl) {
+  const response = await fetch(dataUrl);
 
   if (!response.ok) {
-    throw new Error(`Fetching ${url} failed with ${response.status}`);
+    throw new Error(`Fetching ${dataUrl} failed with ${response.status}`);
   }
 
   return response.json();
 }
 
-// Takes the same page URL the Chrome path would have navigated to, so the
-// rawPath -> URL mapping stays in one place.
-async function generate({ url }) {
-  const data = await fetchData(url);
+// dataUrl points at the internal ALB, so this never leaves the VPC. Fetching
+// from the public site meant going out through Cloudflare and needing the NAT
+// address allowlisted to get back in - the coupling that left every image
+// timing out for four days when bot mitigation was turned on.
+//
+// Built in index.js so the rawPath -> URL mapping stays in one place.
+async function generate({ dataUrl }) {
+  const data = await fetchData(dataUrl);
 
   const svg = await satori(card(data), { width: WIDTH, fonts: fonts() });
   const png = new Resvg(svg, { fitTo: { mode: "width", value: WIDTH } }).render().asPng();
