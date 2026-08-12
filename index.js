@@ -12,6 +12,12 @@ const satoriRenderer = require("./satori_renderer");
 const imagePath = "/tmp/screenshot.jpg";
 const baseUrl = "https://exercism.org";
 
+// The satori renderer fetches its data over the internal ALB rather than the
+// public site, so it never leaves the VPC and doesn't depend on this lambda's
+// NAT address being allowlisted in Cloudflare. The Chrome path still uses the
+// public site: it's screenshotting a rendered page, not reading a payload.
+const internalBaseUrl = process.env.INTERNAL_BASE_URL || "https://internal.exercism.org";
+
 // Generating an image costs a few seconds of headless Chrome at 2GB, so we only
 // ever want to pay for it once per distinct URL. CDN edge caches can't give us
 // that on their own: they're per-PoP, they evict the long tail (most images are
@@ -47,6 +53,7 @@ function rawPathToScreenshotData(rawPath) {
     return {
       kind: "solution",
       url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
+      dataUrl: `${internalBaseUrl}/spi/solution_image_data/${track_slug}/${exercise_slug}/${user_handle}`,
       imageSelector: "#image-content",
       waitForSelector: "#image-content .c-code-pane",
     };
