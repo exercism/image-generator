@@ -34,6 +34,9 @@ const CODE_TRAILING_PADDING = 24 * SCALE;
 const CODE_PADDING = 16 * SCALE;
 const CODE_VERTICAL_PADDING = 8 * SCALE;
 
+// Only used when a payload arrives without one; every track config sets it.
+const DEFAULT_INDENT_SIZE = 2;
+
 // Given explicitly rather than left to flexGrow: satori sizes a wrapping line
 // from its content, so a long string literal would otherwise set the width and
 // run off the edge of the card.
@@ -143,7 +146,7 @@ const el = (type, props, ...children) => ({
   props: { ...props, children: children.length > 1 ? children : children[0] }
 });
 
-function codeLine(tokens, number, theme) {
+function codeLine(tokens, number, theme, indentSize) {
   const spans = tokens.map(({ text, scope }) => {
     const style = theme[scope] || {};
 
@@ -154,7 +157,12 @@ function codeLine(tokens, number, theme) {
         fontWeight: style.bold ? 600 : 400,
         // pre-wrap, not pre: indentation has to survive, but a long string
         // literal still needs to break rather than run off the card.
-        whiteSpace: "pre-wrap"
+        whiteSpace: "pre-wrap",
+        // The track's configured width for a literal tab. The website sets
+        // this as `style={{ tabSize: indentSize }}` on the code element
+        // (FileViewer.tsx), so tab-indented tracks - Go, Nim, Zig - line up
+        // the way their track intends rather than at a default width.
+        tabSize: indentSize
       }
     }, text);
   });
@@ -224,6 +232,9 @@ function card(data) {
 
   const lines = highlight(file.content, data.code.language).slice(0, MAX_LINES);
   const theme = data.highlight_theme || {};
+  // Space-indented tracks never hit this; it only matters where the source
+  // carries literal tabs.
+  const indentSize = data.code.indent_size || DEFAULT_INDENT_SIZE;
 
   return el("div", {
     style: {
@@ -272,7 +283,7 @@ function card(data) {
             opacity: WATERMARK_OPACITY
           }
         }),
-        ...lines.map((tokens, idx) => codeLine(tokens, idx + 1, theme))
+        ...lines.map((tokens, idx) => codeLine(tokens, idx + 1, theme, indentSize))
       ),
       footer(data.footer)
     )

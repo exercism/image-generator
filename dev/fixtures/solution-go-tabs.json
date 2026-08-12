@@ -1,0 +1,124 @@
+{
+  "code": {
+    "language": "go",
+    "indent_size": 4,
+    "files": [
+      {
+        "filename": "food_chain.go",
+        "content": "package foodchain\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\n// Verse returns a single verse of the song.\nfunc Verse(v int) string {\n\tif v == 1 {\n\t\treturn \"I know an old lady who swallowed a fly. I don't know why she swallowed the fly. Perhaps she'll die.\"\n\t}\n\n\tvar sb strings.Builder\n\tfor i := v; i > 0; i-- {\n\t\tif i > 1 {\n\t\t\tsb.WriteString(fmt.Sprintf(\"She swallowed the %s to catch the %s.\", animals[i], animals[i-1]))\n\t\t}\n\t}\n\n\treturn sb.String()\n}\n"
+      }
+    ]
+  },
+  "footer": {
+    "handle": "klausbayrhammer",
+    "avatar_url": null,
+    "exercise_title": "Food Chain",
+    "track_title": "Go"
+  },
+  "highlight_theme": {
+    "default": {
+      "colour": "#abb2bf"
+    },
+    "comment": {
+      "colour": "#5c6370",
+      "italic": true
+    },
+    "quote": {
+      "colour": "#5c6370",
+      "italic": true
+    },
+    "doctag": {
+      "colour": "#c678dd"
+    },
+    "keyword": {
+      "colour": "#c678dd"
+    },
+    "formula": {
+      "colour": "#c678dd"
+    },
+    "section": {
+      "colour": "#e06c75"
+    },
+    "name": {
+      "colour": "#e06c75"
+    },
+    "selector-tag": {
+      "colour": "#e06c75"
+    },
+    "deletion": {
+      "colour": "#e06c75"
+    },
+    "subst": {
+      "colour": "#e06c75"
+    },
+    "literal": {
+      "colour": "#56b6c2"
+    },
+    "string": {
+      "colour": "#98c379"
+    },
+    "regexp": {
+      "colour": "#98c379"
+    },
+    "addition": {
+      "colour": "#98c379"
+    },
+    "attribute": {
+      "colour": "#98c379"
+    },
+    "meta-string": {
+      "colour": "#98c379"
+    },
+    "attr": {
+      "colour": "#d19a66"
+    },
+    "variable": {
+      "colour": "#d19a66"
+    },
+    "template-variable": {
+      "colour": "#d19a66"
+    },
+    "type": {
+      "colour": "#d19a66"
+    },
+    "selector-class": {
+      "colour": "#d19a66"
+    },
+    "selector-attr": {
+      "colour": "#d19a66"
+    },
+    "selector-pseudo": {
+      "colour": "#d19a66"
+    },
+    "number": {
+      "colour": "#d19a66"
+    },
+    "symbol": {
+      "colour": "#61aeee"
+    },
+    "bullet": {
+      "colour": "#61aeee"
+    },
+    "link": {
+      "colour": "#61aeee"
+    },
+    "meta": {
+      "colour": "#61aeee"
+    },
+    "selector-id": {
+      "colour": "#61aeee"
+    },
+    "title": {
+      "colour": "#61aeee"
+    },
+    "built_in": {
+      "colour": "#e6c07b"
+    },
+    "emphasis": {
+      "italic": true
+    },
+    "strong": {
+      "bold": true
+    }
+  }
+}
