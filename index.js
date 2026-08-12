@@ -7,6 +7,7 @@ const {
   GetObjectCommand,
   PutObjectCommand,
 } = require("@aws-sdk/client-s3");
+const satoriRenderer = require("./satori_renderer");
 
 const imagePath = "/tmp/screenshot.jpg";
 const baseUrl = "https://exercism.org";
@@ -30,6 +31,11 @@ const selectorTimeout = parseInt(process.env.SELECTOR_TIMEOUT_MS || "6000", 10);
 
 const legacyMaxAge = 86400;
 
+// Solutions can be drawn without a browser, which is far cheaper. Off by
+// default so it can be enabled once its output has been eyeballed against the
+// Chrome path; profiles have no satori renderer yet and always use Chrome.
+const satoriEnabled = process.env.RENDERER === "satori";
+
 const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
 const profileRegex = /^\/profiles\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
 
@@ -39,6 +45,7 @@ function rawPathToScreenshotData(rawPath) {
     const { track_slug, exercise_slug, user_handle } = solutionMatch.groups;
 
     return {
+      kind: "solution",
       url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
       imageSelector: "#image-content",
       waitForSelector: "#image-content .c-code-pane",
@@ -50,6 +57,7 @@ function rawPathToScreenshotData(rawPath) {
     const { user_handle } = profileMatch.groups;
 
     return {
+      kind: "profile",
       url: `${baseUrl}/images/profiles/${user_handle}`,
       imageSelector: "#image-content",
       waitForSelector: "#image-content #contributions-chart",
@@ -80,14 +88,14 @@ function s3Key(rawPath) {
   return `${keyPrefix}${rawPath}`;
 }
 
-function imageResponse(imageBuffer, { cacheControl, lastModified }) {
-  const etag = crypto.createHash("md5").update(imageBuffer).digest("hex");
+function imageResponse({ body, contentType }, { cacheControl, lastModified }) {
+  const etag = crypto.createHash("md5").update(body).digest("hex");
 
   return {
     statusCode: 200,
-    body: imageBuffer.toString("base64"),
+    body: body.toString("base64"),
     headers: {
-      "Content-Type": "image/jpg",
+      "Content-Type": contentType,
       "Cache-Control": cacheControl,
       "Last-Modified": lastModified,
       "Etag": `W/"${etag}"`,
@@ -111,7 +119,12 @@ async function fetchFromS3(key, { isTimestamped }) {
       if (age > legacyMaxAge) return null;
     }
 
-    return Buffer.from(await object.Body.transformToByteArray());
+    return {
+      body: Buffer.from(await object.Body.transformToByteArray()),
+      // Stored per object, so images cached before the renderer changed keep
+      // being served as whatever they were written as.
+      contentType: object.ContentType || "image/jpg",
+    };
   } catch (err) {
     if (err.name !== "NoSuchKey" && err.name !== "NotFound") {
       console.error(`Failed reading ${key} from S3: ${err.message}`);
@@ -120,14 +133,14 @@ async function fetchFromS3(key, { isTimestamped }) {
   }
 }
 
-async function writeToS3(key, imageBuffer, cacheControl) {
+async function writeToS3(key, { body, contentType }, cacheControl) {
   try {
     await s3.send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: key,
-        Body: imageBuffer,
-        ContentType: "image/jpg",
+        Body: body,
+        ContentType: contentType,
         CacheControl: cacheControl,
       })
     );
@@ -167,10 +180,16 @@ async function generateImage({ url, imageSelector, waitForSelector }) {
       quality: 80,
     });
 
-    return fs.readFileSync(imagePath);
+    return { body: fs.readFileSync(imagePath), contentType: "image/jpg" };
   } finally {
     await browser.close();
   }
+}
+
+function rendererFor(screenshotData) {
+  if (satoriEnabled && screenshotData.kind === "solution") return satoriRenderer.generate;
+
+  return generateImage;
 }
 
 exports.handler = async (event) => {
@@ -182,10 +201,10 @@ exports.handler = async (event) => {
     const cached = await fetchFromS3(key, metadata);
     if (cached) return imageResponse(cached, metadata);
 
-    const imageBuffer = await generateImage(screenshotData);
-    await writeToS3(key, imageBuffer, metadata.cacheControl);
+    const image = await rendererFor(screenshotData)(screenshotData);
+    await writeToS3(key, image, metadata.cacheControl);
 
-    return imageResponse(imageBuffer, metadata);
+    return imageResponse(image, metadata);
   } catch (err) {
     console.error(err);
 
