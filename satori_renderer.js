@@ -16,37 +16,121 @@ const SCALE = 2;
 const WIDTH = 800 * SCALE;
 const PADDING = 32 * SCALE;
 const RADIUS = 16 * SCALE;
-const CODE_FONT_SIZE = 14 * SCALE;
-const LINE_HEIGHT = 21 * SCALE;
-const GUTTER_WIDTH = 46 * SCALE;
+// These mirror app/css/components/code-pane.css on the website, which is what
+// the Chrome path was photographing:
+//
+//   li        text-15 font-mono leading-huge   (leading-huge = 170%)
+//   li .idx   width: 64px, text-center         (the line-number gutter)
+//   li .loc   pr-24
+//   code      py-8
+//
+// They were previously eyeballed - 14px text on a 21px line in a 46px
+// right-aligned gutter - which is what made the output read as tighter than the
+// real thing.
+const CODE_FONT_SIZE = 15 * SCALE;
+const LINE_HEIGHT = Math.round(15 * 1.7) * SCALE;
+const GUTTER_WIDTH = 64 * SCALE;
+const CODE_TRAILING_PADDING = 24 * SCALE;
 const CODE_PADDING = 16 * SCALE;
+const CODE_VERTICAL_PADDING = 8 * SCALE;
 
 // Given explicitly rather than left to flexGrow: satori sizes a wrapping line
 // from its content, so a long string literal would otherwise set the width and
 // run off the edge of the card.
-const CODE_WIDTH = WIDTH - 2 * PADDING - 2 * CODE_PADDING - GUTTER_WIDTH;
+// The gutter and .loc's own pr-24 are the only horizontal insets, matching the
+// CSS - the code block itself is padded vertically only.
+const CODE_WIDTH = WIDTH - 2 * PADDING - GUTTER_WIDTH - CODE_TRAILING_PADDING;
 
 // The Chrome path clipped the code pane at max-h-[450px]; keep the same shape
 // so images don't suddenly get taller.
 const MAX_LINES = Math.floor((450 * SCALE) / LINE_HEIGHT);
 
+// The Chrome layout watermarks the code pane with the Exercism mark:
+//   image_tag "favicon.png", class: "absolute top-[20px] right-[20px]
+//                                    z-[100] opacity-[0.3] h-[80px]"
+// (app/views/images/solution.html.haml)
+//
+// Inlined as a data URI rather than fetched: satori resolves image sources over
+// the network at render time, and the whole point of dropping Chrome was to
+// stop a remote fetch being able to stall or fail an image. Vendored here
+// because the Lambda image can't read the website's asset pipeline.
+const WATERMARK_SIZE = 80 * SCALE;
+const WATERMARK_INSET = 20 * SCALE;
+const WATERMARK_OPACITY = 0.3;
+
+let watermarkCache;
+function watermark() {
+  watermarkCache ||= `data:image/png;base64,${fs.readFileSync(path.join(__dirname, "assets", "watermark.png")).toString("base64")}`;
+
+  return watermarkCache;
+}
+
 // app/css/ui-kit/colors.css, theme-dark
 const PURPLE = "rgb(112, 42, 244)";
 const CARD_BACKGROUND = "#211D2F";
 const BORDER = "#433f56";
-const GUTTER_COLOUR = "#6b6785";
+// .idx is text-textColor6. The image renders under .theme-dark, where that
+// resolves to --c-A9A6BD - not the .theme-light #5c5589, which is a much
+// darker, more purple grey and reads as wrong against the dark card.
+const GUTTER_COLOUR = "#a9a6bd";
 const FOOTER_MUTED = "#a8a3c4";
 const FOOTER_STRONG = "#ffffff";
 
 const fontFile = (pkg, file) =>
   fs.readFileSync(path.join(require.resolve(`${pkg}/package.json`), "..", "files", file));
 
+// satori picks a font file per (family, weight, style) and silently renders
+// nothing for a combination that isn't registered - no error, just missing
+// glyphs. Every combination the theme can ask for has to be loaded, so both
+// weights are registered in both styles: hljs-comment and friends are italic,
+// hljs-strong is bold.
+//
+// Code can be in any language, and fontsource splits Source Code Pro into
+// per-script files, so every subset has to be registered or anything outside
+// latin renders as tofu - silently, since satori never errors on a missing
+// glyph.
+//
+// How they're named matters, and the obvious spellings both fail:
+//
+//   - All under one family name: satori uses the first face registered for a
+//     given (family, weight, style) and never consults the rest, so latin wins
+//     and every other script is tofu.
+//   - One family per subset: satori falls back across families, but matches
+//     candidates on style too. An italic span finds the italic face of the
+//     primary family, and that match stops it looking further - so italic text
+//     is tofu even though the glyph exists in a registered fallback.
+//
+// Naming each (subset, style) separately leaves an italic span with no
+// same-family italic competitor, so the fallback resolves. Only the primary
+// latin family is referenced by name; satori discovers the rest on its own.
+const MONO_SUBSETS = ["cyrillic", "greek", "vietnamese"];
+const MONO_FAMILY = "Source Code Pro";
+
+const monoFace = (subset, weight, style, name) => ({
+  name,
+  weight,
+  style,
+  data: fontFile("@fontsource/source-code-pro", `source-code-pro-${subset}-${weight}-${style}.woff`)
+});
+
+const eachWeightAndStyle = (fn) =>
+  [400, 600].flatMap((weight) => ["normal", "italic"].map((style) => fn(weight, style)));
+
+const monoFaces = () => [
+  ...eachWeightAndStyle((weight, style) => monoFace("latin", weight, style, MONO_FAMILY)),
+  ...MONO_SUBSETS.flatMap((subset) =>
+    eachWeightAndStyle((weight, style) =>
+      monoFace(subset, weight, style, `${MONO_FAMILY} ${subset} ${style}`)
+    )
+  )
+];
+
 let fontCache;
 function fonts() {
   fontCache ||= [
     { name: "Poppins", weight: 400, style: "normal", data: fontFile("@fontsource/poppins", "poppins-latin-400-normal.woff") },
     { name: "Poppins", weight: 600, style: "normal", data: fontFile("@fontsource/poppins", "poppins-latin-600-normal.woff") },
-    { name: "Source Code Pro", weight: 400, style: "normal", data: fontFile("@fontsource/source-code-pro", "source-code-pro-latin-400-normal.woff") }
+    ...monoFaces()
   ];
 
   return fontCache;
@@ -81,13 +165,18 @@ function codeLine(tokens, number, theme) {
         display: "flex",
         width: GUTTER_WIDTH,
         flexShrink: 0,
-        justifyContent: "flex-end",
-        paddingRight: 12 * SCALE,
+        // .idx is text-center, not right-aligned against the code.
+        justifyContent: "center",
         color: GUTTER_COLOUR
       }
     }, String(number)),
     el("div", {
-      style: { display: "flex", flexWrap: "wrap", width: CODE_WIDTH }
+      style: {
+        display: "flex",
+        flexWrap: "wrap",
+        width: CODE_WIDTH,
+        paddingRight: CODE_TRAILING_PADDING
+      }
     }, ...(spans.length ? spans : [el("span", { style: { whiteSpace: "pre" } }, " ")]))
   );
 }
@@ -160,12 +249,31 @@ function card(data) {
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
-          padding: CODE_PADDING,
+          // The watermark is positioned against this, matching the
+          // `flex-grow relative` wrapper it sits in on the Chrome layout.
+          position: "relative",
+          // .c-iteration-pane is py-16 and the code block inside it py-8; the
+          // horizontal inset has no direct equivalent, the gutter provides it.
+          paddingTop: CODE_PADDING + CODE_VERTICAL_PADDING,
+          paddingBottom: CODE_PADDING + CODE_VERTICAL_PADDING,
           fontFamily: "Source Code Pro",
           fontSize: CODE_FONT_SIZE,
           lineHeight: `${LINE_HEIGHT}px`
         }
-      }, ...lines.map((tokens, idx) => codeLine(tokens, idx + 1, theme))),
+      },
+        el("img", {
+          src: watermark(),
+          width: WATERMARK_SIZE,
+          height: WATERMARK_SIZE,
+          style: {
+            position: "absolute",
+            top: WATERMARK_INSET,
+            right: WATERMARK_INSET,
+            opacity: WATERMARK_OPACITY
+          }
+        }),
+        ...lines.map((tokens, idx) => codeLine(tokens, idx + 1, theme))
+      ),
       footer(data.footer)
     )
   );

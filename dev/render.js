@@ -5,6 +5,12 @@
 //
 //   node dev/render.js                                   # committed fixture
 //   node dev/render.js --fixture path/to.json            # your own payload
+//   node dev/render.js --fixture dev/fixtures/solution-with-avatar.json
+//
+// The default fixture has no avatar, which is a real case the renderer handles;
+// solution-with-avatar.json covers the other one. Its avatar is an inlined data
+// URI rather than a link to the avatars host, so rendering stays offline -
+// satori fetches image sources over the network at render time.
 //   node dev/render.js --url https://exercism.org/images/solutions/ruby/bob/ihid
 //   node dev/render.js --out /tmp/mine.png
 //

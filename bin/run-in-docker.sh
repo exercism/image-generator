@@ -27,8 +27,8 @@ tag="exercism/image-generator"
 platform="linux/amd64"
 
 raw_image_path="${1}"
+mkdir -p "${2%/}"
 output_dir=$(realpath "${2%/}")
-mkdir -p "${output_dir}"
 
 if [[ -z "${SKIP_BUILD}" ]]; then
     docker build --platform "${platform}" -t "${tag}" .
