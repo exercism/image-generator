@@ -1,0 +1,124 @@
+{
+  "code": {
+    "language": "javascript",
+    "indent_size": 2,
+    "files": [
+      {
+        "filename": "food-chain.js",
+        "content": "module.exports = (function() {\n  // A comment, to check that italics survive the round trip.\n  const verseLyrics = [];\n  verseLyrics[1] = \"I know an old lady who swallowed a fly.\\nI don't know why she swallowed the fly. Perhaps she'll die.\\n\";\n\n  function swallow(animal, { wriggled = false } = {}) {\n    if (!animal) { return null; }\n    return `She swallowed the ${animal}` + (wriggled ? \" that wriggled\" : \"\");\n  }\n\n  return { swallow, verseLyrics };\n})();"
+      }
+    ]
+  },
+  "footer": {
+    "handle": "klausbayrhammer",
+    "avatar_url": null,
+    "exercise_title": "Food Chain",
+    "track_title": "JavaScript"
+  },
+  "highlight_theme": {
+    "default": {
+      "colour": "#abb2bf"
+    },
+    "comment": {
+      "colour": "#5c6370",
+      "italic": true
+    },
+    "quote": {
+      "colour": "#5c6370",
+      "italic": true
+    },
+    "doctag": {
+      "colour": "#c678dd"
+    },
+    "keyword": {
+      "colour": "#c678dd"
+    },
+    "formula": {
+      "colour": "#c678dd"
+    },
+    "section": {
+      "colour": "#e06c75"
+    },
+    "name": {
+      "colour": "#e06c75"
+    },
+    "selector-tag": {
+      "colour": "#e06c75"
+    },
+    "deletion": {
+      "colour": "#e06c75"
+    },
+    "subst": {
+      "colour": "#e06c75"
+    },
+    "literal": {
+      "colour": "#56b6c2"
+    },
+    "string": {
+      "colour": "#98c379"
+    },
+    "regexp": {
+      "colour": "#98c379"
+    },
+    "addition": {
+      "colour": "#98c379"
+    },
+    "attribute": {
+      "colour": "#98c379"
+    },
+    "meta-string": {
+      "colour": "#98c379"
+    },
+    "attr": {
+      "colour": "#d19a66"
+    },
+    "variable": {
+      "colour": "#d19a66"
+    },
+    "template-variable": {
+      "colour": "#d19a66"
+    },
+    "type": {
+      "colour": "#d19a66"
+    },
+    "selector-class": {
+      "colour": "#d19a66"
+    },
+    "selector-attr": {
+      "colour": "#d19a66"
+    },
+    "selector-pseudo": {
+      "colour": "#d19a66"
+    },
+    "number": {
+      "colour": "#d19a66"
+    },
+    "symbol": {
+      "colour": "#61aeee"
+    },
+    "bullet": {
+      "colour": "#61aeee"
+    },
+    "link": {
+      "colour": "#61aeee"
+    },
+    "meta": {
+      "colour": "#61aeee"
+    },
+    "selector-id": {
+      "colour": "#61aeee"
+    },
+    "title": {
+      "colour": "#61aeee"
+    },
+    "built_in": {
+      "colour": "#e6c07b"
+    },
+    "emphasis": {
+      "italic": true
+    },
+    "strong": {
+      "bold": true
+    }
+  }
+}
