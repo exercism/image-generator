@@ -24,7 +24,6 @@ website serves the data directly over the internal ALB, which leaves plain
 layout, and satori does layout in-process. Roughly 100-300ms instead of ~5.7s,
 and no headless Chrome.
 
-Set `RENDERER=satori` to enable it. Everything uses Chrome if the variable is
 unset.
 
 Profiles are the harder of the two, because the page they replace isn't just
@@ -134,9 +133,6 @@ soft and the image is generated as normal.
 | --- | --- | --- |
 | `IMAGE_BUCKET` | `exercism-v3-assets` | Bucket holding generated images |
 | `IMAGE_KEY_PREFIX` | `generated-images` | Key prefix within that bucket |
-| `NAVIGATION_TIMEOUT_MS` | `6000` | Page navigation timeout (Chrome only) |
-| `SELECTOR_TIMEOUT_MS` | `6000` | Timeout waiting for the content selector (Chrome only) |
-| `RENDERER` | unset | Set to `satori` to draw solution images without a browser |
 
 The two timeouts must stay comfortably below the Lambda's own timeout (20s).
 puppeteer defaults both to 30s, which is *longer*, meaning a hung render burned

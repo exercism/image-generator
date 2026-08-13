@@ -1,7 +1,4 @@
-const fs = require("fs");
 const crypto = require("crypto");
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
 const {
   S3Client,
   GetObjectCommand,
@@ -10,12 +7,7 @@ const {
 const satoriRenderer = require("./satori_renderer");
 const profileRenderer = require("./profile_renderer");
 
-const imagePath = "/tmp/screenshot.jpg";
-const baseUrl = "https://exercism.org";
-
-// The satori renderer reads its payload over the internal ALB, so it never
-// leaves the VPC. The Chrome path still uses the public site: it's
-// screenshotting a rendered page, not reading a payload.
+// Payloads are read over the internal ALB, so a render never leaves the VPC.
 const internalBaseUrl = process.env.INTERNAL_BASE_URL || "https://internal.exercism.org";
 
 // Writing through to S3 makes the cost of generating an image a function of how
@@ -26,16 +18,7 @@ const keyPrefix = process.env.IMAGE_KEY_PREFIX || "generated-images";
 
 const s3 = new S3Client({});
 
-// Both must stay under the Lambda's 20s timeout; puppeteer's own defaults are
-// 30s, so a hung render burned the full 20s at 2GB rather than failing fast.
-const navigationTimeout = parseInt(process.env.NAVIGATION_TIMEOUT_MS || "6000", 10);
-const selectorTimeout = parseInt(process.env.SELECTOR_TIMEOUT_MS || "6000", 10);
-
 const legacyMaxAge = 86400;
-
-// Off by default so the browserless output can be eyeballed against the Chrome
-// path before it's enabled.
-const satoriEnabled = process.env.RENDERER === "satori";
 
 const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
 const profileRegex = /^\/profiles\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
@@ -49,8 +32,6 @@ function rawPathToScreenshotData(rawPath) {
       kind: "solution",
       url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
       dataUrl: `${internalBaseUrl}/spi/solution_image_data/${track_slug}/${exercise_slug}/${user_handle}`,
-      imageSelector: "#image-content",
-      waitForSelector: "#image-content .c-code-pane",
     };
   }
 
@@ -62,8 +43,6 @@ function rawPathToScreenshotData(rawPath) {
       kind: "profile",
       url: `${baseUrl}/images/profiles/${user_handle}`,
       dataUrl: `${internalBaseUrl}/spi/profile_image_data/${user_handle}`,
-      imageSelector: "#image-content",
-      waitForSelector: "#image-content #contributions-chart",
     };
   }
 
@@ -151,51 +130,16 @@ async function writeToS3(key, { body, contentType }, cacheControl) {
   }
 }
 
-async function generateImage({ url, imageSelector, waitForSelector }) {
-  const browser = await puppeteer.launch({
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
-    defaultViewport: { ...chromium.defaultViewport, deviceScaleFactor: 2 },
-    args: [
-      ...chromium.args,
-      "--hide-scrollbars",
-      "--disable-web-security",
-      "--high-dpi-support=1",
-    ],
-  });
-
-  // Closed on the way out, or a failed render leaks it into the next warm
-  // invocation.
-  try {
-    const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(navigationTimeout);
-
-    await page.goto(url);
-    await page.waitForSelector(waitForSelector, { timeout: selectorTimeout });
-
-    const image = await page.$(imageSelector);
-    await image.screenshot({
-      path: imagePath,
-      type: "jpeg",
-      quality: 80,
-    });
-
-    return { body: fs.readFileSync(imagePath), contentType: "image/jpg" };
-  } finally {
-    await browser.close();
-  }
-}
-
-const satoriRenderers = {
+const renderers = {
   solution: satoriRenderer.generate,
   profile: profileRenderer.generate,
 };
 
-function rendererFor(screenshotData) {
-  if (satoriEnabled) return satoriRenderers[screenshotData.kind] || generateImage;
+function rendererFor({ kind }) {
+  const renderer = renderers[kind];
+  if (!renderer) throw new Error(`No renderer for image kind '${kind}'.`);
 
-  return generateImage;
+  return renderer;
 }
 
 exports.handler = async (event) => {
