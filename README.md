@@ -19,13 +19,45 @@ anything to photograph. It costs a few seconds at 2GB per image, and because it
 fetches our own public site from a datacentre IP it looks like a bot - which is
 how enabling Cloudflare's bot mitigation broke image generation for four days.
 
-**satori** draws solution images without a browser. The website serves the data
-directly at `/images/solutions/:track/:exercise/:handle/data`, which leaves
-plain layout, and satori does layout in-process. Roughly 100-300ms instead of
-~5.7s, and no headless Chrome.
+**satori** draws both solution and profile images without a browser. The
+website serves the data directly over the internal ALB, which leaves plain
+layout, and satori does layout in-process. Roughly 100-300ms instead of ~5.7s,
+and no headless Chrome.
 
-Set `RENDERER=satori` to enable it. Profiles have no satori renderer yet and
-always use Chrome, as does everything if the variable is unset.
+Set `RENDERER=satori` to enable it. Everything uses Chrome if the variable is
+unset.
+
+Profiles are the harder of the two, because the page they replace isn't just
+text in a box:
+
+- The **radar chart** is Chart.js on a `<canvas>`. satori has neither, so it's
+  redrawn as inline SVG from the same six numbers — `padReputation()` and the
+  12-o'clock start are carried over from `use-chart.ts` so the polygon matches.
+- **Header and category icons** — the reputation shield, the flair beside the
+  handle, the `{~}` in the founder tag, and the six hexagonal category icons —
+  are the website's own SVGs, vendored under `assets/profile-icons` by
+  `dev/sync-profile-icons.sh ../website`. The hexagon behind each category
+  glyph isn't an icon file upstream but `--backgroundImageHex`, a data URI in
+  `app/css/ui-kit/colors.css`; the script extracts the dark-theme one of the
+  two. Nothing is fetched at render time — satori resolves image sources over
+  the network, and a profile draws a dozen of them, so a live fetch would be a
+  dozen more ways for an image to hang.
+
+  The icons are recoloured by rewriting their fills, since there's no CSS
+  filter here to do it. Most of them carry `fill="none"` on the `<svg>` element
+  and leave their paths to inherit it, so that root fill is re-applied to the
+  group that replaces the stripped root — without it the outlines fall back to
+  SVG's default black and flood.
+- **Badge medallions** are the website's own artwork, lifted out of the base64
+  data URIs in `app/css/components/badge.css` and vendored under
+  `assets/medallions`. Their rarity glows are CSS filters; satori has no
+  filters, but these are SVG handed to resvg, which does support
+  `feGaussianBlur`, so the glow survives.
+- **Badge icons** are vendored too, under `assets/badge-icons`, along with the
+  badge→icon mapping — which is *not* derivable from the badge name
+  (`ContributorBadge` uses `contributors`, `RookieBadge` uses `editor`). Run
+  `dev/sync-badge-icons.sh ../website` when a badge is added or its icon
+  changes.
 
 ### Colours without a stylesheet
 

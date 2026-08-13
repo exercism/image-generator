@@ -1,0 +1,62 @@
+{
+  "header": {
+    "handle": "山田太郎",
+    "name": "Ямада Таро 🎉",
+    "avatar_url": null,
+    "reputation": 4821,
+    "badges": [
+      {
+        "slug": "architect",
+        "rarity": "legendary"
+      },
+      {
+        "slug": "completer",
+        "rarity": "ultimate"
+      },
+      {
+        "slug": "mentor",
+        "rarity": "rare"
+      },
+      {
+        "slug": "member",
+        "rarity": "common"
+      }
+    ],
+    "tags": [
+      "Maintainer",
+      "Insider"
+    ]
+  },
+  "categories": [
+    {
+      "id": "publishing",
+      "metric": "42 solutions published",
+      "reputation": 310
+    },
+    {
+      "id": "mentoring",
+      "metric": "88 students mentored",
+      "reputation": 1902
+    },
+    {
+      "id": "authoring",
+      "metric": "12 exercises/articles contributed",
+      "reputation": 640
+    },
+    {
+      "id": "building",
+      "metric": "31 PRs accepted",
+      "reputation": 1200
+    },
+    {
+      "id": "maintaining",
+      "metric": "9 PRs reviewed",
+      "reputation": 769
+    },
+    {
+      "id": "other",
+      "metric": null,
+      "reputation": 0
+    }
+  ]
+}

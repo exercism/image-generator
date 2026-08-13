@@ -1,12 +1,9 @@
 const hljs = require("highlight.js");
 
-// highlight.js hands back an HTML string. We need coloured runs of text, and
-// satori has no stylesheets to colour spans with, so unpick the markup into
-// tokens and let the caller apply the theme it was given.
-//
-// Parsing hljs's own output rather than driving its emitter API on purpose: the
-// output is a tiny, stable subset (nested spans and escaped text) whereas the
-// emitter interface is internal and has moved between major versions.
+// Unpicks the HTML string highlight.js hands back into coloured runs of text,
+// since satori has no stylesheets to colour spans with. Parsing that output is
+// deliberate: it's a tiny stable subset, whereas hljs's emitter API is internal
+// and has moved between major versions.
 
 const TAG = /<span class="([^"]*)">|<\/span>/g;
 
@@ -23,8 +20,7 @@ function decode(text) {
   return text.replace(/&(?:amp|lt|gt|quot|#x27|#39);/g, (entity) => ENTITIES[entity]);
 }
 
-// A span can carry several classes ("hljs-title function_"); the hljs-prefixed
-// one is the scope our theme is keyed on.
+// A span can carry several classes; the hljs-prefixed one keys the theme.
 function scopeOf(classNames) {
   const scope = classNames.split(/\s+/).find((name) => name.startsWith("hljs-"));
   return scope ? scope.slice("hljs-".length) : null;
@@ -52,8 +48,7 @@ function parse(html) {
   return tokens;
 }
 
-// Lines are what we lay out, so split tokens on newlines while keeping each
-// fragment's scope.
+// Splits tokens on newlines, keeping each fragment's scope.
 function intoLines(tokens) {
   const lines = [[]];
 
@@ -69,8 +64,7 @@ function intoLines(tokens) {
   return lines;
 }
 
-// Falls back to plain unhighlighted lines for languages highlight.js doesn't
-// know - better a readable image than none.
+// Falls back to plain lines for a language highlight.js doesn't know.
 function highlight(code, language) {
   if (!language || !hljs.getLanguage(language)) {
     return intoLines([{ text: code, scope: null }]);

@@ -5,27 +5,21 @@
 //
 //   node dev/render.js                                   # committed fixture
 //   node dev/render.js --fixture path/to.json            # your own payload
-//   node dev/render.js --fixture dev/fixtures/solution-with-avatar.json
-//   node dev/render.js --fixture dev/fixtures/solution-go-tabs.json
-//   node dev/render.js --fixture dev/fixtures/solution-mixed-scripts.json
-//
-// The default fixture has no avatar, which is a real case the renderer handles;
-// solution-with-avatar.json covers the other one. Its avatar is an inlined data
-// URI rather than a link to the avatars host, so rendering stays offline -
-// satori fetches image sources over the network at render time.
-//
-// solution-go-tabs.json is tab-indented Go at indent_size 4. Space-indented
-// tracks look the same whatever indent_size says, so it takes a track that
-// actually ships literal tabs to see that value being honoured.
-//
-// solution-mixed-scripts.json is Japanese, Chinese, Korean, Cyrillic, Greek,
-// Vietnamese and emoji in one file, in code and in the footer handle. All of
-// the CJK and emoji rendered as tofu boxes until the fallback faces went in,
-// and satori doesn't error on a missing glyph, so this is the one to look at
-// after touching anything font-related. fonts.test.js checks the same ground
-// automatically; this is for seeing it.
-//   node dev/render.js --url https://internal.exercism.org/spi/solution_image_data/ruby/bob/ihid
+//   node dev/render.js --fixture dev/fixtures/profile.json
 //   node dev/render.js --out /tmp/mine.png
+//   node dev/render.js --url https://internal.exercism.org/spi/solution_image_data/ruby/bob/ihid
+//
+// The payload shape says which renderer to use, so profile fixtures pick the
+// profile renderer automatically. What each fixture is for:
+//
+//   profile.json                  a heavily-decorated account
+//   profile-minimal.json          a new one: no badges, no name, empty categories
+//   profile-mixed-scripts.json    a CJK handle and a Cyrillic name
+//   solution.json                 the default; no avatar, which is a real case
+//   solution-with-avatar.json     avatar inlined as a data URI, to stay offline
+//   solution-go-tabs.json         tab-indented Go, the only way to see indent_size
+//   solution-mixed-scripts.json   seven scripts and emoji, in code and in the
+//                                 footer - look at this after any font change
 //
 // --url takes the data endpoint itself. internal.exercism.org only resolves
 // from inside the VPC, so locally point it at your own Rails:
@@ -65,9 +59,12 @@ async function main() {
   // Stub the fetch the renderer would do, so one code path serves both modes.
   global.fetch = async () => ({ ok: true, json: async () => data });
 
+  // Taken from the payload rather than a flag, so there's nothing to get wrong.
+  const kind = data.categories || data.header ? "profile" : "solution";
+
   const started = Date.now();
-  const { generate } = require("../satori_renderer");
-  const { body, contentType } = await generate({ dataUrl: url || "fixture://solution" });
+  const { generate } = require(kind === "profile" ? "../profile_renderer" : "../satori_renderer");
+  const { body, contentType } = await generate({ dataUrl: url || `fixture://${kind}` });
   const elapsed = Date.now() - started;
 
   fs.writeFileSync(out, body);
