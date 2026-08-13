@@ -8,38 +8,33 @@ const {
   PutObjectCommand,
 } = require("@aws-sdk/client-s3");
 const satoriRenderer = require("./satori_renderer");
+const profileRenderer = require("./profile_renderer");
 
 const imagePath = "/tmp/screenshot.jpg";
 const baseUrl = "https://exercism.org";
 
-// The satori renderer fetches its data over the internal ALB rather than the
-// public site, so it never leaves the VPC and doesn't depend on this lambda's
-// NAT address being allowlisted in Cloudflare. The Chrome path still uses the
-// public site: it's screenshotting a rendered page, not reading a payload.
+// The satori renderer reads its payload over the internal ALB, so it never
+// leaves the VPC. The Chrome path still uses the public site: it's
+// screenshotting a rendered page, not reading a payload.
 const internalBaseUrl = process.env.INTERNAL_BASE_URL || "https://internal.exercism.org";
 
-// Generating an image costs a few seconds of headless Chrome at 2GB, so we only
-// ever want to pay for it once per distinct URL. CDN edge caches can't give us
-// that on their own: they're per-PoP, they evict the long tail (most images are
-// fetched a handful of times ever), and a flood of distinct URLs misses them
-// entirely. Writing through to S3 makes the cost a function of how many images
-// exist rather than how many times they're requested.
+// Writing through to S3 makes the cost of generating an image a function of how
+// many exist rather than how many times they're requested - CDN edge caches are
+// per-PoP and evict the long tail, which is most of these.
 const bucket = process.env.IMAGE_BUCKET || "exercism-v3-assets";
 const keyPrefix = process.env.IMAGE_KEY_PREFIX || "generated-images";
 
 const s3 = new S3Client({});
 
-// These must stay comfortably under the Lambda's 20s timeout. puppeteer
-// defaults both to 30s, which is longer, so before this a render that hung
-// burned the full 20s at 2GB rather than failing fast.
+// Both must stay under the Lambda's 20s timeout; puppeteer's own defaults are
+// 30s, so a hung render burned the full 20s at 2GB rather than failing fast.
 const navigationTimeout = parseInt(process.env.NAVIGATION_TIMEOUT_MS || "6000", 10);
 const selectorTimeout = parseInt(process.env.SELECTOR_TIMEOUT_MS || "6000", 10);
 
 const legacyMaxAge = 86400;
 
-// Solutions can be drawn without a browser, which is far cheaper. Off by
-// default so it can be enabled once its output has been eyeballed against the
-// Chrome path; profiles have no satori renderer yet and always use Chrome.
+// Off by default so the browserless output can be eyeballed against the Chrome
+// path before it's enabled.
 const satoriEnabled = process.env.RENDERER === "satori";
 
 const solutionRegex = /^\/tracks\/(?<track_slug>.+?)\/exercises\/(?<exercise_slug>.+?)\/solutions\/(?<user_handle>.+?)(?:-\d{10})?\.jpg$/;
@@ -66,6 +61,7 @@ function rawPathToScreenshotData(rawPath) {
     return {
       kind: "profile",
       url: `${baseUrl}/images/profiles/${user_handle}`,
+      dataUrl: `${internalBaseUrl}/spi/profile_image_data/${user_handle}`,
       imageSelector: "#image-content",
       waitForSelector: "#image-content #contributions-chart",
     };
@@ -119,8 +115,8 @@ async function fetchFromS3(key, { isTimestamped }) {
       new GetObjectCommand({ Bucket: bucket, Key: key })
     );
 
-    // Legacy URLs point at content that can change, so a stored copy is only
-    // good for as long as we'd have let a CDN hold onto it.
+    // Legacy URLs point at mutable content, so a stored copy is only good for
+    // as long as we'd have let a CDN hold onto it.
     if (!isTimestamped) {
       const age = (Date.now() - object.LastModified.getTime()) / 1000;
       if (age > legacyMaxAge) return null;
@@ -128,8 +124,7 @@ async function fetchFromS3(key, { isTimestamped }) {
 
     return {
       body: Buffer.from(await object.Body.transformToByteArray()),
-      // Stored per object, so images cached before the renderer changed keep
-      // being served as whatever they were written as.
+      // Per object, so images cached before the renderer changed keep serving.
       contentType: object.ContentType || "image/jpg",
     };
   } catch (err) {
@@ -170,9 +165,8 @@ async function generateImage({ url, imageSelector, waitForSelector }) {
     ],
   });
 
-  // Now that a render can fail rather than take the whole container down with
-  // it, the browser has to be closed on the way out or it leaks into the next
-  // warm invocation.
+  // Closed on the way out, or a failed render leaks it into the next warm
+  // invocation.
   try {
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(navigationTimeout);
@@ -193,8 +187,13 @@ async function generateImage({ url, imageSelector, waitForSelector }) {
   }
 }
 
+const satoriRenderers = {
+  solution: satoriRenderer.generate,
+  profile: profileRenderer.generate,
+};
+
 function rendererFor(screenshotData) {
-  if (satoriEnabled && screenshotData.kind === "solution") return satoriRenderer.generate;
+  if (satoriEnabled) return satoriRenderers[screenshotData.kind] || generateImage;
 
   return generateImage;
 }

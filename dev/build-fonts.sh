@@ -4,22 +4,16 @@
 #
 #   dev/build-fonts.sh
 #
-# You only need to run this to regenerate the fonts - the .woff files are
-# committed, because the Lambda image build can't depend on a Python toolchain
-# and nobody wants a font pipeline in the deploy path.
+# The .woff files are committed, so this is only for regenerating them - the
+# Lambda image build can't depend on a Python toolchain.
 #
 # Why this exists rather than just adding @fontsource/noto-* to package.json:
+# satori can't read woff2 ("Unsupported OpenType signature wOF2") and
+# fontsource's plain .woff copies of a full CJK face are an order of magnitude
+# bigger, so the ~125 numbered subsets it ships per weight are merged back into
+# one face here and re-cut to the ranges below.
 #
-#   - satori cannot read woff2 ("Unsupported OpenType signature wOF2"). It takes
-#     woff, ttf and otf only. The woff2 files are the small ones; fontsource's
-#     .woff copies of a full CJK face are an order of magnitude bigger.
-#   - fontsource ships CJK split across ~125 numbered subsets per weight, and
-#     the numbering is not by frequency - the common CJK block alone spans over
-#     a hundred of them. Registering that many faces with satori is not viable,
-#     so they get merged back into one face and re-subset to the ranges we
-#     actually need.
-#
-# Sizes it produces (see the table in satori_renderer.js):
+# What it produces:
 #
 #   cjk-400.woff     2.6M    kana, CJK punctuation, fullwidth forms,
 #                            CJK Unified Ideographs (covers JA and ZH)

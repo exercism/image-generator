@@ -1,0 +1,190 @@
+{
+  "all_your_base": {
+    "rarity": "rare",
+    "icon": "all-your-base"
+  },
+  "analytical_april": {
+    "rarity": "rare",
+    "icon": "badge-analytical-april"
+  },
+  "anybody_there": {
+    "rarity": "rare",
+    "icon": "hello-world"
+  },
+  "apps_august": {
+    "rarity": "rare",
+    "icon": "badge-apps-august"
+  },
+  "architect": {
+    "rarity": "legendary",
+    "icon": "architect"
+  },
+  "bard": {
+    "rarity": "legendary",
+    "icon": "bard"
+  },
+  "begetter": {
+    "rarity": "legendary",
+    "icon": "begetter"
+  },
+  "chatterbox": {
+    "rarity": "common",
+    "icon": "chatterbox"
+  },
+  "completed_12_in_23": {
+    "rarity": "legendary",
+    "icon": "badge-completed-12-in-23"
+  },
+  "completer": {
+    "rarity": "ultimate",
+    "icon": "completer"
+  },
+  "conceptual": {
+    "rarity": "ultimate",
+    "icon": "conceptual"
+  },
+  "contributor": {
+    "rarity": "ultimate",
+    "icon": "contributors"
+  },
+  "december_diversions": {
+    "rarity": "rare",
+    "icon": "badge-december-diversions"
+  },
+  "die_unendliche_geschichte": {
+    "rarity": "rare",
+    "icon": "die-unendliche-geschichte"
+  },
+  "discourser": {
+    "rarity": "common",
+    "icon": "discourser"
+  },
+  "functional_february": {
+    "rarity": "rare",
+    "icon": "functional"
+  },
+  "growth_mindset": {
+    "rarity": "common",
+    "icon": "mentoring"
+  },
+  "insider": {
+    "rarity": "ultimate",
+    "icon": "insiders"
+  },
+  "jurassic_july": {
+    "rarity": "rare",
+    "icon": "badge-jurassic-july"
+  },
+  "lackadaisical": {
+    "rarity": "ultimate",
+    "icon": "lackadaisical"
+  },
+  "larisa_latynina": {
+    "rarity": "rare",
+    "icon": "larisa-latynina"
+  },
+  "lifetime_insider": {
+    "rarity": "legendary",
+    "icon": "lifetime-insiders"
+  },
+  "mechanical_march": {
+    "rarity": "rare",
+    "icon": "badge-machine-code"
+  },
+  "member": {
+    "rarity": "common",
+    "icon": "logo"
+  },
+  "mentor": {
+    "rarity": "rare",
+    "icon": "mentor"
+  },
+  "mind_shifting_may": {
+    "rarity": "rare",
+    "icon": "badge-mind-shifting-may"
+  },
+  "moss": {
+    "rarity": "legendary",
+    "icon": "moss"
+  },
+  "new_years_resolution": {
+    "rarity": "rare",
+    "icon": "new-years-resolution"
+  },
+  "nibbly_november": {
+    "rarity": "rare",
+    "icon": "badge-nibbly-november"
+  },
+  "object_oriented_october": {
+    "rarity": "rare",
+    "icon": "badge-object-oriented-october"
+  },
+  "paavo_nurmi": {
+    "rarity": "ultimate",
+    "icon": "paavo-nurmi"
+  },
+  "participant_in_12_in_23": {
+    "rarity": "rare",
+    "icon": "12in23-start"
+  },
+  "participant_in_48_in_24": {
+    "rarity": "common",
+    "icon": "48in24-participant"
+  },
+  "polyglot": {
+    "rarity": "legendary",
+    "icon": "badge-polyglot"
+  },
+  "researcher": {
+    "rarity": "legendary",
+    "icon": "researcher"
+  },
+  "rookie": {
+    "rarity": "common",
+    "icon": "editor"
+  },
+  "slimline_september": {
+    "rarity": "rare",
+    "icon": "badge-slimline-september"
+  },
+  "summer_of_sexps": {
+    "rarity": "rare",
+    "icon": "badge-summer-of-sexps"
+  },
+  "supermentor": {
+    "rarity": "legendary",
+    "icon": "supermentor"
+  },
+  "supporter": {
+    "rarity": "rare",
+    "icon": "supporter"
+  },
+  "tooling_pioneer": {
+    "rarity": "legendary",
+    "icon": "tooling-pioneer"
+  },
+  "troubleshooter": {
+    "rarity": "legendary",
+    "icon": "troubleshooter"
+  },
+  "usain_bolt": {
+    "rarity": "legendary",
+    "icon": "usain-bolt"
+  },
+  "v1": {
+    "rarity": "common",
+    "icon": "v1"
+  },
+  "v2": {
+    "rarity": "common",
+    "icon": "v2"
+  },
+  "v3_pioneer": {
+    "rarity": "legendary",
+    "icon": "v3-pioneer"
+  },
+  "whatever": {
+    "rarity": "common",
+    "icon": "whatever"
+  }
+}

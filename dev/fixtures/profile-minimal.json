@@ -1,0 +1,42 @@
+{
+  "header": {
+    "handle": "newcomer",
+    "name": null,
+    "avatar_url": null,
+    "reputation": 12,
+    "badges": [],
+    "tags": []
+  },
+  "categories": [
+    {
+      "id": "publishing",
+      "metric": "3 solutions published",
+      "reputation": 12
+    },
+    {
+      "id": "mentoring",
+      "metric": null,
+      "reputation": 0
+    },
+    {
+      "id": "authoring",
+      "metric": null,
+      "reputation": 0
+    },
+    {
+      "id": "building",
+      "metric": null,
+      "reputation": 0
+    },
+    {
+      "id": "maintaining",
+      "metric": null,
+      "reputation": 0
+    },
+    {
+      "id": "other",
+      "metric": null,
+      "reputation": 0
+    }
+  ]
+}

@@ -4,29 +4,17 @@ const satori = require("satori").default;
 const { Resvg } = require("@resvg/resvg-js");
 const { highlight } = require("./tokenizer");
 
-// Draws the solution share image without a browser.
-//
-// Chrome was only ever here as a JavaScript runtime: the page is a React mount
-// point, so it had to boot a browser, hydrate, and wait on an XHR before there
-// was anything to photograph. The website now serves the same data directly,
-// which leaves plain layout - and satori does layout without a browser.
+// Draws the solution share image without a browser. Chrome was only ever here
+// as a JavaScript runtime, to boot and hydrate a React page before there was
+// anything to photograph; the website now serves the same data directly.
 
 // Rendered at 2x, matching the deviceScaleFactor the Chrome path used.
 const SCALE = 2;
 const WIDTH = 800 * SCALE;
 const PADDING = 32 * SCALE;
 const RADIUS = 16 * SCALE;
-// These mirror app/css/components/code-pane.css on the website, which is what
-// the Chrome path was photographing:
-//
-//   li        text-15 font-mono leading-huge   (leading-huge = 170%)
-//   li .idx   width: 64px, text-center         (the line-number gutter)
-//   li .loc   pr-24
-//   code      py-8
-//
-// They were previously eyeballed - 14px text on a 21px line in a 46px
-// right-aligned gutter - which is what made the output read as tighter than the
-// real thing.
+// These mirror app/css/components/code-pane.css, which is what the Chrome path
+// was photographing.
 const CODE_FONT_SIZE = 15 * SCALE;
 const LINE_HEIGHT = Math.round(15 * 1.7) * SCALE;
 const GUTTER_WIDTH = 64 * SCALE;
@@ -37,26 +25,17 @@ const CODE_VERTICAL_PADDING = 8 * SCALE;
 // Only used when a payload arrives without one; every track config sets it.
 const DEFAULT_INDENT_SIZE = 2;
 
-// Given explicitly rather than left to flexGrow: satori sizes a wrapping line
-// from its content, so a long string literal would otherwise set the width and
-// run off the edge of the card.
-// The gutter and .loc's own pr-24 are the only horizontal insets, matching the
-// CSS - the code block itself is padded vertically only.
+// Explicit rather than flexGrow: satori sizes a wrapping line from its content,
+// so a long string literal would otherwise set the width and run off the card.
 const CODE_WIDTH = WIDTH - 2 * PADDING - GUTTER_WIDTH - CODE_TRAILING_PADDING;
 
 // The Chrome path clipped the code pane at max-h-[450px]; keep the same shape
 // so images don't suddenly get taller.
 const MAX_LINES = Math.floor((450 * SCALE) / LINE_HEIGHT);
 
-// The Chrome layout watermarks the code pane with the Exercism mark:
-//   image_tag "favicon.png", class: "absolute top-[20px] right-[20px]
-//                                    z-[100] opacity-[0.3] h-[80px]"
-// (app/views/images/solution.html.haml)
-//
 // Inlined as a data URI rather than fetched: satori resolves image sources over
-// the network at render time, and the whole point of dropping Chrome was to
-// stop a remote fetch being able to stall or fail an image. Vendored here
-// because the Lambda image can't read the website's asset pipeline.
+// the network, and dropping Chrome was about stopping a remote fetch stalling
+// an image.
 const WATERMARK_SIZE = 80 * SCALE;
 const WATERMARK_INSET = 20 * SCALE;
 const WATERMARK_OPACITY = 0.3;
@@ -72,9 +51,8 @@ function watermark() {
 const PURPLE = "rgb(112, 42, 244)";
 const CARD_BACKGROUND = "#211D2F";
 const BORDER = "#433f56";
-// .idx is text-textColor6. The image renders under .theme-dark, where that
-// resolves to --c-A9A6BD - not the .theme-light #5c5589, which is a much
-// darker, more purple grey and reads as wrong against the dark card.
+// .idx is text-textColor6 as .theme-dark resolves it; the light-theme value
+// reads as wrong against the dark card.
 const GUTTER_COLOUR = "#a9a6bd";
 const FOOTER_MUTED = "#a8a3c4";
 const FOOTER_STRONG = "#ffffff";
@@ -84,30 +62,13 @@ const fontFile = (pkg, file) =>
 
 const assetFont = (file) => fs.readFileSync(path.join(__dirname, "assets", "fonts", file));
 
-// satori picks a font file per (family, weight, style) and silently renders
-// nothing for a combination that isn't registered - no error, just missing
-// glyphs. Every combination the theme can ask for has to be loaded, so both
-// weights are registered in both styles: hljs-comment and friends are italic,
-// hljs-strong is bold.
-//
-// Code can be in any language, and fontsource splits Source Code Pro into
-// per-script files, so every subset has to be registered or anything outside
-// latin renders as tofu - silently, since satori never errors on a missing
-// glyph.
-//
-// How they're named matters, and the obvious spellings both fail:
-//
-//   - All under one family name: satori uses the first face registered for a
-//     given (family, weight, style) and never consults the rest, so latin wins
-//     and every other script is tofu.
-//   - One family per subset: satori falls back across families, but matches
-//     candidates on style too. An italic span finds the italic face of the
-//     primary family, and that match stops it looking further - so italic text
-//     is tofu even though the glyph exists in a registered fallback.
-//
-// Naming each (subset, style) separately leaves an italic span with no
-// same-family italic competitor, so the fallback resolves. Only the primary
-// latin family is referenced by name; satori discovers the rest on its own.
+// satori renders an unregistered (family, weight, style) as tofu without
+// erroring, so every combination a theme can ask for is registered across every
+// fontsource subset. The naming is load-bearing, and both obvious spellings
+// fail: under one family name satori keeps the first face registered and latin
+// wins, while one family per subset lets an italic span match the primary
+// family's italic face and stop the fallback search. Naming each (subset,
+// style) separately leaves no same-family competitor, so the fallback resolves.
 const MONO_SUBSETS = ["cyrillic", "greek", "vietnamese"];
 const MONO_FAMILY = "Source Code Pro";
 
@@ -121,36 +82,13 @@ const monoFace = (subset, weight, style, name) => ({
 const eachWeightAndStyle = (fn) =>
   [400, 600].flatMap((weight) => ["normal", "italic"].map((style) => fn(weight, style)));
 
-// Source Code Pro has no CJK or emoji glyphs in any subset, so no amount of
-// registering fontsource files covers them - they need different faces
-// entirely, or Japanese, Chinese, Korean and emoji all render as tofu boxes.
-// Silently, again: satori never errors on a missing glyph, and the S3
-// write-through means one bad render is cached and served for that URL forever.
-//
-// These are built by dev/build-fonts.sh and committed under assets/fonts,
-// rather than pulled from @fontsource at install time, because:
-//
-//   - satori cannot read woff2, only woff/ttf/otf. fontsource's woff copies of
-//     a whole CJK face are far too big to ship in the Lambda image.
-//   - fontsource splits CJK into ~125 numbered subsets per weight, and the
-//     common ideographs are spread across most of them. That is too many faces
-//     to register, so the script merges them and re-cuts the ranges we need.
-//
-//   cjk-400.woff     2.6M   kana, CJK punctuation, fullwidth forms and the
-//                           CJK Unified Ideographs block. Japanese and
-//                           Simplified Chinese share that block, so one face
-//                           serves both.
-//   hangul-400.woff  904K   Hangul syllables and jamo.
-//   emoji-400.woff   455K   Noto Emoji, which is monochrome. Colour emoji fonts
-//                           are CBDT/COLR and resvg won't draw them, so emoji
-//                           come out as black-and-white glyphs rather than not
-//                           at all.
-//
-// Only one weight and style each. These are fallbacks: a bold or italic CJK
-// span gets the regular face rather than nothing, which is the right trade for
-// several megabytes an image. They follow the same per-style naming rule as the
-// mono subsets above - registering them under one name would let an italic span
-// match the primary family and stop the fallback search, tofuing italic CJK.
+// Source Code Pro ships no CJK or emoji glyphs in any subset, so these cover
+// them. They're built by dev/build-fonts.sh and committed rather than pulled
+// from @fontsource, which only has them as woff2 (satori can't read it) split
+// across ~125 subsets per weight (too many faces to register). Emoji are
+// monochrome Noto: resvg won't draw the CBDT/COLR colour fonts. One weight and
+// style each - a bold or italic CJK span gets the regular face rather than
+// nothing - under the same per-style naming rule as the mono subsets above.
 const FALLBACK_FILES = ["cjk-400.woff", "hangul-400.woff", "emoji-400.woff"];
 
 const fallbackFaces = () =>
@@ -186,8 +124,8 @@ function fonts() {
   return fontCache;
 }
 
-// satori takes React-element-shaped objects. Building them by hand keeps this a
-// plain Node project - no JSX, so no build step in the Lambda image.
+// satori takes React-element-shaped objects. Built by hand to keep this a plain
+// Node project - no JSX, so no build step in the Lambda image.
 const el = (type, props, ...children) => ({
   type,
   props: { ...props, children: children.length > 1 ? children : children[0] }
@@ -205,10 +143,7 @@ function codeLine(tokens, number, theme, indentSize) {
         // pre-wrap, not pre: indentation has to survive, but a long string
         // literal still needs to break rather than run off the card.
         whiteSpace: "pre-wrap",
-        // The track's configured width for a literal tab. The website sets
-        // this as `style={{ tabSize: indentSize }}` on the code element
-        // (FileViewer.tsx), so tab-indented tracks - Go, Nim, Zig - line up
-        // the way their track intends rather than at a default width.
+        // What FileViewer.tsx sets, so tab-indented tracks line up as intended.
         tabSize: indentSize
       }
     }, text);
@@ -279,8 +214,6 @@ function card(data) {
 
   const lines = highlight(file.content, data.code.language).slice(0, MAX_LINES);
   const theme = data.highlight_theme || {};
-  // Space-indented tracks never hit this; it only matters where the source
-  // carries literal tabs.
   const indentSize = data.code.indent_size || DEFAULT_INDENT_SIZE;
 
   return el("div", {
@@ -307,11 +240,9 @@ function card(data) {
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
-          // The watermark is positioned against this, matching the
-          // `flex-grow relative` wrapper it sits in on the Chrome layout.
+          // The watermark is positioned against this.
           position: "relative",
-          // .c-iteration-pane is py-16 and the code block inside it py-8; the
-          // horizontal inset has no direct equivalent, the gutter provides it.
+          // .c-iteration-pane's py-16 plus the code block's own py-8.
           paddingTop: CODE_PADDING + CODE_VERTICAL_PADDING,
           paddingBottom: CODE_PADDING + CODE_VERTICAL_PADDING,
           fontFamily: "Source Code Pro",
@@ -347,12 +278,8 @@ async function fetchData(dataUrl) {
   return response.json();
 }
 
-// dataUrl points at the internal ALB, so this never leaves the VPC. Fetching
-// from the public site meant going out through Cloudflare and needing the NAT
-// address allowlisted to get back in - the coupling that left every image
-// timing out for four days when bot mitigation was turned on.
-//
-// Built in index.js so the rawPath -> URL mapping stays in one place.
+// dataUrl points at the internal ALB, so this never leaves the VPC. It's built
+// in index.js, so the rawPath -> URL mapping stays in one place.
 async function generate({ dataUrl }) {
   const data = await fetchData(dataUrl);
 
@@ -362,6 +289,5 @@ async function generate({ dataUrl }) {
   return { body: png, contentType: "image/png" };
 }
 
-// fonts is exported for fonts.test.js, which renders strings through the real
-// face list to check nothing tofus.
+// fonts is exported for fonts.test.js, which checks nothing tofus.
 module.exports = { generate, fonts };

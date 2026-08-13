@@ -1,0 +1,25 @@
+{
+  "header": {
+    "handle": "iHiD",
+    "name": "Jeremy Walker",
+    "avatar_url": null,
+    "reputation": 65110,
+    "flair": "founder",
+    "badges": [
+      { "icon": "moss", "rarity": "legendary" },
+      { "icon": "architect", "rarity": "legendary" },
+      { "icon": "begetter", "rarity": "legendary" },
+      { "icon": "supermentor", "rarity": "legendary" },
+      { "icon": "v3-pioneer", "rarity": "legendary" }
+    ],
+    "tags": ["Exercism Founder"]
+  },
+  "categories": [
+    { "id": "publishing", "metric": "81 solutions published", "reputation": 93 },
+    { "id": "mentoring", "metric": "179 students mentored", "reputation": 852 },
+    { "id": "authoring", "metric": "403 exercises/articles contributed", "reputation": 4057 },
+    { "id": "building", "metric": "2,659 PRs accepted", "reputation": 31894 },
+    { "id": "maintaining", "metric": "7,171 PRs reviewed", "reputation": 28214 },
+    { "id": "other", "metric": null, "reputation": 0 }
+  ]
+}
