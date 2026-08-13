@@ -30,7 +30,6 @@ function rawPathToScreenshotData(rawPath) {
 
     return {
       kind: "solution",
-      url: `${baseUrl}/images/solutions/${track_slug}/${exercise_slug}/${user_handle}`,
       dataUrl: `${internalBaseUrl}/spi/solution_image_data/${track_slug}/${exercise_slug}/${user_handle}`,
     };
   }
@@ -41,7 +40,6 @@ function rawPathToScreenshotData(rawPath) {
 
     return {
       kind: "profile",
-      url: `${baseUrl}/images/profiles/${user_handle}`,
       dataUrl: `${internalBaseUrl}/spi/profile_image_data/${user_handle}`,
     };
   }
