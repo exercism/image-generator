@@ -82,6 +82,8 @@ const FOOTER_STRONG = "#ffffff";
 const fontFile = (pkg, file) =>
   fs.readFileSync(path.join(require.resolve(`${pkg}/package.json`), "..", "files", file));
 
+const assetFont = (file) => fs.readFileSync(path.join(__dirname, "assets", "fonts", file));
+
 // satori picks a font file per (family, weight, style) and silently renders
 // nothing for a combination that isn't registered - no error, just missing
 // glyphs. Every combination the theme can ask for has to be loaded, so both
@@ -119,13 +121,58 @@ const monoFace = (subset, weight, style, name) => ({
 const eachWeightAndStyle = (fn) =>
   [400, 600].flatMap((weight) => ["normal", "italic"].map((style) => fn(weight, style)));
 
+// Source Code Pro has no CJK or emoji glyphs in any subset, so no amount of
+// registering fontsource files covers them - they need different faces
+// entirely, or Japanese, Chinese, Korean and emoji all render as tofu boxes.
+// Silently, again: satori never errors on a missing glyph, and the S3
+// write-through means one bad render is cached and served for that URL forever.
+//
+// These are built by dev/build-fonts.sh and committed under assets/fonts,
+// rather than pulled from @fontsource at install time, because:
+//
+//   - satori cannot read woff2, only woff/ttf/otf. fontsource's woff copies of
+//     a whole CJK face are far too big to ship in the Lambda image.
+//   - fontsource splits CJK into ~125 numbered subsets per weight, and the
+//     common ideographs are spread across most of them. That is too many faces
+//     to register, so the script merges them and re-cuts the ranges we need.
+//
+//   cjk-400.woff     2.6M   kana, CJK punctuation, fullwidth forms and the
+//                           CJK Unified Ideographs block. Japanese and
+//                           Simplified Chinese share that block, so one face
+//                           serves both.
+//   hangul-400.woff  904K   Hangul syllables and jamo.
+//   emoji-400.woff   455K   Noto Emoji, which is monochrome. Colour emoji fonts
+//                           are CBDT/COLR and resvg won't draw them, so emoji
+//                           come out as black-and-white glyphs rather than not
+//                           at all.
+//
+// Only one weight and style each. These are fallbacks: a bold or italic CJK
+// span gets the regular face rather than nothing, which is the right trade for
+// several megabytes an image. They follow the same per-style naming rule as the
+// mono subsets above - registering them under one name would let an italic span
+// match the primary family and stop the fallback search, tofuing italic CJK.
+const FALLBACK_FILES = ["cjk-400.woff", "hangul-400.woff", "emoji-400.woff"];
+
+const fallbackFaces = () =>
+  FALLBACK_FILES.flatMap((file) => {
+    const data = assetFont(file);
+
+    return ["normal", "italic"].map((style) => ({
+      name: `Fallback ${file} ${style}`,
+      weight: 400,
+      style,
+      data
+    }));
+  });
+
 const monoFaces = () => [
   ...eachWeightAndStyle((weight, style) => monoFace("latin", weight, style, MONO_FAMILY)),
   ...MONO_SUBSETS.flatMap((subset) =>
     eachWeightAndStyle((weight, style) =>
       monoFace(subset, weight, style, `${MONO_FAMILY} ${subset} ${style}`)
     )
-  )
+  ),
+  ...fallbackFaces()
 ];
 
 let fontCache;
@@ -315,4 +362,6 @@ async function generate({ dataUrl }) {
   return { body: png, contentType: "image/png" };
 }
 
-module.exports = { generate };
+// fonts is exported for fonts.test.js, which renders strings through the real
+// face list to check nothing tofus.
+module.exports = { generate, fonts };

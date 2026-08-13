@@ -7,6 +7,7 @@
 //   node dev/render.js --fixture path/to.json            # your own payload
 //   node dev/render.js --fixture dev/fixtures/solution-with-avatar.json
 //   node dev/render.js --fixture dev/fixtures/solution-go-tabs.json
+//   node dev/render.js --fixture dev/fixtures/solution-mixed-scripts.json
 //
 // The default fixture has no avatar, which is a real case the renderer handles;
 // solution-with-avatar.json covers the other one. Its avatar is an inlined data
@@ -16,6 +17,13 @@
 // solution-go-tabs.json is tab-indented Go at indent_size 4. Space-indented
 // tracks look the same whatever indent_size says, so it takes a track that
 // actually ships literal tabs to see that value being honoured.
+//
+// solution-mixed-scripts.json is Japanese, Chinese, Korean, Cyrillic, Greek,
+// Vietnamese and emoji in one file, in code and in the footer handle. All of
+// the CJK and emoji rendered as tofu boxes until the fallback faces went in,
+// and satori doesn't error on a missing glyph, so this is the one to look at
+// after touching anything font-related. fonts.test.js checks the same ground
+// automatically; this is for seeing it.
 //   node dev/render.js --url https://internal.exercism.org/spi/solution_image_data/ruby/bob/ihid
 //   node dev/render.js --out /tmp/mine.png
 //

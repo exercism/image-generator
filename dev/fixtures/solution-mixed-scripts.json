@@ -1,0 +1,124 @@
+{
+  "code": {
+    "language": "python",
+    "indent_size": 4,
+    "files": [
+      {
+        "filename": "mixed_scripts.py",
+        "content": "# Mixed-script rendering check - every line here tofud before the\n# CJK and emoji fallback faces were added.\n\nimport unicodedata\n\nGREETINGS = {\n    \"ja\": \"こんにちは世界\",      # Japanese: kana + ideographs\n    \"zh\": \"你好，世界\",         # Simplified Chinese, CJK punctuation\n    \"ko\": \"안녕하세요\",          # Korean Hangul\n    \"ru\": \"Привет, мир\",       # Cyrillic, already covered\n    \"el\": \"Γειά σου Κόσμε\",    # Greek, already covered\n    \"vi\": \"Xin chào thế giới\", # Vietnamese, already covered\n}\n\n# Emoji are monochrome here: Noto Emoji is a CBDT-free outline font,\n# because resvg will not draw colour emoji tables. 🚀 ✅ 🎉 ⚡ 🔥\nSTATUS = {\"pass\": \"✅\", \"fail\": \"❌\", \"ship\": \"🚀\"}\n\ndef greet(lang: str) -> str:\n    \"\"\"全角文字 and ｈａｌｆｗｉｄｔｈ forms in a docstring.\"\"\"\n    return f\"{GREETINGS[lang]} {STATUS[pass]}\"\n\nassert greet(\"ja\") == \"こんにちは世界 ✅\""
+      }
+    ]
+  },
+  "footer": {
+    "handle": "山田太郎",
+    "avatar_url": null,
+    "exercise_title": "Hello World 🌍",
+    "track_title": "Python"
+  },
+  "highlight_theme": {
+    "default": {
+      "colour": "#abb2bf"
+    },
+    "comment": {
+      "colour": "#5c6370",
+      "italic": true
+    },
+    "quote": {
+      "colour": "#5c6370",
+      "italic": true
+    },
+    "doctag": {
+      "colour": "#c678dd"
+    },
+    "keyword": {
+      "colour": "#c678dd"
+    },
+    "formula": {
+      "colour": "#c678dd"
+    },
+    "section": {
+      "colour": "#e06c75"
+    },
+    "name": {
+      "colour": "#e06c75"
+    },
+    "selector-tag": {
+      "colour": "#e06c75"
+    },
+    "deletion": {
+      "colour": "#e06c75"
+    },
+    "subst": {
+      "colour": "#e06c75"
+    },
+    "literal": {
+      "colour": "#56b6c2"
+    },
+    "string": {
+      "colour": "#98c379"
+    },
+    "regexp": {
+      "colour": "#98c379"
+    },
+    "addition": {
+      "colour": "#98c379"
+    },
+    "attribute": {
+      "colour": "#98c379"
+    },
+    "meta-string": {
+      "colour": "#98c379"
+    },
+    "attr": {
+      "colour": "#d19a66"
+    },
+    "variable": {
+      "colour": "#d19a66"
+    },
+    "template-variable": {
+      "colour": "#d19a66"
+    },
+    "type": {
+      "colour": "#d19a66"
+    },
+    "selector-class": {
+      "colour": "#d19a66"
+    },
+    "selector-attr": {
+      "colour": "#d19a66"
+    },
+    "selector-pseudo": {
+      "colour": "#d19a66"
+    },
+    "number": {
+      "colour": "#d19a66"
+    },
+    "symbol": {
+      "colour": "#61aeee"
+    },
+    "bullet": {
+      "colour": "#61aeee"
+    },
+    "link": {
+      "colour": "#61aeee"
+    },
+    "meta": {
+      "colour": "#61aeee"
+    },
+    "selector-id": {
+      "colour": "#61aeee"
+    },
+    "title": {
+      "colour": "#61aeee"
+    },
+    "built_in": {
+      "colour": "#e6c07b"
+    },
+    "emphasis": {
+      "italic": true
+    },
+    "strong": {
+      "bold": true
+    }
+  }
+}

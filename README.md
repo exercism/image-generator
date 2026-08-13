@@ -35,6 +35,47 @@ extracts the palette from its own theme CSS and includes it in the payload, so
 restyling the theme moves the images with it. `tokenizer.js` turns
 highlight.js's HTML back into coloured runs of text for satori to lay out.
 
+### Fonts
+
+satori fails silently on a missing glyph: no error, no log line, just tofu
+boxes in an image that then gets written through to S3 and served for that URL
+indefinitely. Two things follow from that.
+
+The first is that the face list has to be complete. Source Code Pro covers
+latin, Cyrillic, Greek and Vietnamese, but ships no CJK or emoji glyphs in any
+subset, so those need separate faces. They live in `assets/fonts` and are built
+by `dev/build-fonts.sh`:
+
+| File | Size | Covers |
+| --- | --- | --- |
+| `cjk-400.woff` | 2.6M | Kana, CJK punctuation, fullwidth forms, CJK Unified Ideographs — Japanese and Simplified Chinese both |
+| `hangul-400.woff` | 904K | Hangul syllables and jamo |
+| `emoji-400.woff` | 455K | Monochrome emoji |
+
+They're committed rather than pulled from `@fontsource` at install time, for
+two reasons worth knowing before changing any of this:
+
+- **satori cannot read woff2**, only woff/ttf/otf. woff2 is the small format;
+  fontsource's `.woff` copies of a full CJK face are far too big to ship.
+- **fontsource splits CJK into ~125 numbered subsets per weight**, and the
+  common ideographs are spread across most of them — that's too many faces to
+  register. The script merges them back into one face and re-cuts the ranges we
+  need.
+
+Emoji come out monochrome. Colour emoji fonts use CBDT/COLR tables that resvg
+won't draw, so the choice is black-and-white glyphs or none.
+
+The second is that this needs testing, and the obvious test doesn't work. "Did
+it draw anything?" passes on tofu, because a box is geometry too. `fonts.test.js`
+counts *distinct* glyph shapes instead: tofu is one box repeated, so a string of
+five different characters collapses to a handful of shapes however long it gets.
+`dev/fixtures/solution-mixed-scripts.json` is the same ground in a form you can
+look at:
+
+```bash
+node dev/render.js --fixture dev/fixtures/solution-mixed-scripts.json
+```
+
 ## Caching
 
 Generated images are written through to S3, so any given URL is only ever
