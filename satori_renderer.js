@@ -171,14 +171,21 @@ function codeLine(tokens, number, theme, indentSize) {
   );
 }
 
-function footer({ handle, avatar_url, exercise_title, track_title }) {
+function footer({ handle, avatar_data, avatar_url, exercise_title, track_title }) {
   const text = (content, colour, weight) =>
     el("span", { style: { color: colour, fontWeight: weight, whiteSpace: "pre" } }, content);
 
+  // Prefer the inlined avatar. avatar_url points at assets.exercism.org, which
+  // is Cloudflare-fronted, so fetching it takes us out through the NAT gateway
+  // and back into our own account for a file Rails could hand us directly. The
+  // SPI sends both; avatar_url stays as the fallback for users whose avatar
+  // isn't an attachment we can inline (an external GitHub URL, usually).
+  //
   // A missing avatar shouldn't cost us the whole image.
-  const avatar = avatar_url
+  const avatarSrc = avatar_data || avatar_url;
+  const avatar = avatarSrc
     ? el("img", {
-        src: avatar_url,
+        src: avatarSrc,
         width: 32 * SCALE,
         height: 32 * SCALE,
         style: { borderRadius: 32 * SCALE, marginRight: 8 * SCALE }

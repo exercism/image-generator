@@ -363,10 +363,13 @@ const TAG_ICONS = {
   "Exercism Founder": "logo"
 };
 
-function header({ handle, name, avatar_url, reputation, flair, badges = [], tags = [] }) {
-  const avatar = avatar_url
+function header({ handle, name, avatar_data, avatar_url, reputation, flair, badges = [], tags = [] }) {
+  // See satori_renderer.js: the inlined avatar saves a round trip out through
+  // the NAT gateway, with avatar_url as the fallback.
+  const avatarSrc = avatar_data || avatar_url;
+  const avatar = avatarSrc
     ? el("img", {
-        src: avatar_url,
+        src: avatarSrc,
         width: AVATAR_SIZE,
         height: AVATAR_SIZE,
         style: { borderRadius: AVATAR_SIZE, marginRight: 32 * SCALE }
