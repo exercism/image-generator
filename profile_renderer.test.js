@@ -72,6 +72,33 @@ test("lays the full fixture out without throwing", async () => {
   assert.ok(svg.length > 1000);
 });
 
+// A 1x1 transparent png, inlined the way the SPI now sends avatars.
+const AVATAR_DATA =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+test("draws the inlined avatar rather than fetching the url", async () => {
+  const data = {
+    ...FIXTURE,
+    header: { ...FIXTURE.header, avatar_data: AVATAR_DATA, avatar_url: "https://assets.exercism.org/avatars/1/0" }
+  };
+
+  const svg = await satori(card(data), { width: 1600, fonts: fonts() });
+
+  // The whole point: nothing leaves the Lambda to fetch the avatar.
+  assert.ok(!svg.includes("assets.exercism.org"));
+});
+
+test("falls back to the url when there is nothing to inline", async () => {
+  const data = {
+    ...FIXTURE,
+    header: { ...FIXTURE.header, avatar_data: null, avatar_url: null }
+  };
+
+  const svg = await satori(card(data), { width: 1600, fonts: fonts() });
+
+  assert.ok(svg.startsWith("<svg"));
+});
+
 test("handles a missing avatar", async () => {
   const data = { ...FIXTURE, header: { ...FIXTURE.header, avatar_url: null } };
   const svg = await satori(card(data), { width: 1600, fonts: fonts() });
