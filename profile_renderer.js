@@ -363,13 +363,13 @@ const TAG_ICONS = {
   "Exercism Founder": "logo"
 };
 
-function header({ handle, name, avatar_data, avatar_url, reputation, flair, badges = [], tags = [] }) {
-  // See satori_renderer.js: the inlined avatar saves a round trip out through
-  // the NAT gateway, with avatar_url as the fallback.
-  const avatarSrc = avatar_data || avatar_url;
-  const avatar = avatarSrc
+function header({ handle, name, avatar_data, reputation, flair, badges = [], tags = [] }) {
+  // avatar_data only - see satori_renderer.js. With no URL to fall back to, a
+  // render cannot reach the internet at all, which is what allows the NAT
+  // gateway to go. Falls through to the placeholder circle below when null.
+  const avatar = avatar_data
     ? el("img", {
-        src: avatarSrc,
+        src: avatar_data,
         width: AVATAR_SIZE,
         height: AVATAR_SIZE,
         style: { borderRadius: AVATAR_SIZE, marginRight: 32 * SCALE }

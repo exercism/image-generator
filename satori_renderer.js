@@ -171,21 +171,23 @@ function codeLine(tokens, number, theme, indentSize) {
   );
 }
 
-function footer({ handle, avatar_data, avatar_url, exercise_title, track_title }) {
+function footer({ handle, avatar_data, exercise_title, track_title }) {
   const text = (content, colour, weight) =>
     el("span", { style: { color: colour, fontWeight: weight, whiteSpace: "pre" } }, content);
 
-  // Prefer the inlined avatar. avatar_url points at assets.exercism.org, which
-  // is Cloudflare-fronted, so fetching it takes us out through the NAT gateway
-  // and back into our own account for a file Rails could hand us directly. The
-  // SPI sends both; avatar_url stays as the fallback for users whose avatar
-  // isn't an attachment we can inline (an external GitHub URL, usually).
+  // avatar_data only - the avatar_url fallback is deliberately gone. This
+  // lambda sits in a private subnet whose only route out is a NAT gateway, and
+  // avatar_url pointed at Cloudflare-fronted assets.exercism.org, so any
+  // fallback fetch left the VPC and came back into our own account. Rails now
+  // inlines every avatar it can (attachment or external URL), so there is
+  // nothing left worth fetching - and with no URL here, a render *cannot*
+  // reach the internet. That is what lets the NAT gateway be deleted.
   //
-  // A missing avatar shouldn't cost us the whole image.
-  const avatarSrc = avatar_data || avatar_url;
-  const avatar = avatarSrc
+  // The trade: if avatar_data is null (Rails could not produce one) we draw no
+  // avatar rather than going out to find one.
+  const avatar = avatar_data
     ? el("img", {
-        src: avatarSrc,
+        src: avatar_data,
         width: 32 * SCALE,
         height: 32 * SCALE,
         style: { borderRadius: 32 * SCALE, marginRight: 8 * SCALE }
