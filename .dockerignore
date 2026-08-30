@@ -1,7 +1,9 @@
 .appends/
 .github/
 bin/
+dev/
 output/
 *.md
+*.test.js
 /LICENSE
 /Dockerfile
